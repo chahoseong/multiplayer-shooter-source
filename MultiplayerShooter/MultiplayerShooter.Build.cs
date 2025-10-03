@@ -16,12 +16,14 @@ public class MultiplayerShooter : ModuleRules
 			"Core",
 			"CoreUObject",
 			"Engine",
-			"InputCore",
-			"EnhancedInput"
+			"GameplayTags",
+			"GameplayTasks",
+			"GameplayAbilities",
 		]);
 
 		PrivateDependencyModuleNames.AddRange([
-			
+			"InputCore",
+			"EnhancedInput",
 		]);
 
 		// Uncomment if you are using Slate UI
