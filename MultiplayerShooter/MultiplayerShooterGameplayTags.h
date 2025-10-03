@@ -1,0 +1,12 @@
+﻿#pragma once
+
+#include "NativeGameplayTags.h"
+
+namespace MultiplayerShooterGameplayTags
+{
+	MULTIPLAYERSHOOTER_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_AbilityInputBlocked)
+
+	MULTIPLAYERSHOOTER_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Move)
+	MULTIPLAYERSHOOTER_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Look)
+	MULTIPLAYERSHOOTER_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Aim)
+}
