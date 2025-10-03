@@ -1,23 +1,40 @@
 ﻿#include "Character/MultiplayerShooterCharacter.h"
+#include "MultiplayerShooterCharacterMovementComponent.h"
+#include "Player/MultiplayerShooterPlayerState.h"
 
-AMultiplayerShooterCharacter::AMultiplayerShooterCharacter()
+AMultiplayerShooterCharacter::AMultiplayerShooterCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UMultiplayerShooterCharacterMovementComponent>(CharacterMovementComponentName))
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
+
+	UMultiplayerShooterCharacterMovementComponent* MultiplayerShooterCharacterMovement =
+		CastChecked<UMultiplayerShooterCharacterMovementComponent>(GetCharacterMovement());
+	MultiplayerShooterCharacterMovement->GravityScale = 1.0f;
+	MultiplayerShooterCharacterMovement->MaxAcceleration = 2400.0f;
+	MultiplayerShooterCharacterMovement->BrakingFrictionFactor = 1.0f;
+	MultiplayerShooterCharacterMovement->BrakingFriction = 6.0f;
+	MultiplayerShooterCharacterMovement->GroundFriction = 8.0f;
+	MultiplayerShooterCharacterMovement->BrakingDecelerationWalking = 1400.0f;
+	MultiplayerShooterCharacterMovement->bUseControllerDesiredRotation = false;
+	MultiplayerShooterCharacterMovement->bOrientRotationToMovement = false;
+	MultiplayerShooterCharacterMovement->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
+	MultiplayerShooterCharacterMovement->bAllowPhysicsRotationDuringAnimRootMotion = false;
+	MultiplayerShooterCharacterMovement->GetNavAgentPropertiesRef().bCanCrouch = true;
+	MultiplayerShooterCharacterMovement->bCanWalkOffLedgesWhenCrouching = true;
+	MultiplayerShooterCharacterMovement->SetCrouchedHalfHeight(65.0f);
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
 }
 
-void AMultiplayerShooterCharacter::BeginPlay()
+UAbilitySystemComponent* AMultiplayerShooterCharacter::GetAbilitySystemComponent() const
 {
-	Super::BeginPlay();
-	
+	return AbilitySystemComponent;
 }
 
-void AMultiplayerShooterCharacter::Tick(float DeltaTime)
+UAttributeSet* AMultiplayerShooterCharacter::GetAttributeSet() const
 {
-	Super::Tick(DeltaTime);
+	return AttributeSet;
 }
-
-void AMultiplayerShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-

@@ -1,22 +1,41 @@
 ﻿#pragma once
 
-#include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AbilitySystemInterface.h"
 #include "MultiplayerShooterCharacter.generated.h"
 
+class UGameplayAbility;
+class UAttributeSet;
+class UAbilitySystemComponent;
+
 UCLASS()
-class MULTIPLAYERSHOOTER_API AMultiplayerShooterCharacter : public ACharacter
+class MULTIPLAYERSHOOTER_API AMultiplayerShooterCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
-	AMultiplayerShooterCharacter();
+	AMultiplayerShooterCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	template <typename T> requires std::is_base_of_v<UAbilitySystemComponent, T>
+	T* GetAbilitySystemComponent() const
+	{
+		return Cast<T>(GetAbilitySystemComponent());
+	}
+
+	UAttributeSet* GetAttributeSet() const;
+
+	template <typename T> requires(std::is_base_of_v<UAttributeSet, T>)
+	T* GetAttributeSet() const
+	{
+		return Cast<T>(GetAttributeSet());
+	}
 
 protected:
-	virtual void BeginPlay() override;
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-public:
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	UPROPERTY()
+	TObjectPtr<UAttributeSet> AttributeSet;
 };

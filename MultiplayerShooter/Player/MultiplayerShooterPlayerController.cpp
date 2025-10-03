@@ -1,29 +1,56 @@
 ﻿#include "Player/MultiplayerShooterPlayerController.h"
-#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "MultiplayerShooterGameplayTags.h"
+#include "AbilitySystem/MultiplayerShooterAbilitySystemComponent.h"
+#include "Character/MultiplayerShooterCharacter.h"
+#include "Input/MultiplayerShooterInputComponent.h"
 
 AMultiplayerShooterPlayerController::AMultiplayerShooterPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
+void AMultiplayerShooterPlayerController::PostProcessInput(const float DeltaTime, const bool bGamePaused)
+{
+	UMultiplayerShooterAbilitySystemComponent* AbilitySystem =
+		GetMultiplayerShooterAbilitySystemComponent();
+	if (AbilitySystem)
+	{
+		AbilitySystem->ProcessAbilityInput(DeltaTime, bGamePaused);
+	}
+	
+	Super::PostProcessInput(DeltaTime, bGamePaused);
+}
+
 void AMultiplayerShooterPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	
-	UEnhancedInputComponent* EnhancedInputComponent =
-		CastChecked<UEnhancedInputComponent>(InputComponent);
-	EnhancedInputComponent->BindAction(
-		MoveAction,
+	UMultiplayerShooterInputComponent* MultiplayerShooterInputComponent =
+		CastChecked<UMultiplayerShooterInputComponent>(InputComponent);
+	
+	MultiplayerShooterInputComponent->BindNativeAction(
+		InputConfig,
+		MultiplayerShooterGameplayTags::Input_Action_Move,
 		ETriggerEvent::Triggered,
 		this,
-		&ThisClass::Input_Move
+		&ThisClass::Input_Move,
+		false
 	);
-	EnhancedInputComponent->BindAction(
-		LookAction,
+	MultiplayerShooterInputComponent->BindNativeAction(
+		InputConfig,
+		MultiplayerShooterGameplayTags::Input_Action_Look,
 		ETriggerEvent::Triggered,
 		this,
-		&ThisClass::Input_Look
+		&ThisClass::Input_Look,
+		false
+	);
+
+	MultiplayerShooterInputComponent->BindAbilityActions(
+		InputConfig,
+		this,
+		&ThisClass::Input_AbilityInputPressed,
+		&ThisClass::Input_AbilityInputReleased
 	);
 }
 
@@ -66,6 +93,26 @@ void AMultiplayerShooterPlayerController::Input_Look(const FInputActionValue& In
 	}
 }
 
+void AMultiplayerShooterPlayerController::Input_AbilityInputPressed(FGameplayTag InputTag)
+{
+	UMultiplayerShooterAbilitySystemComponent* AbilitySystem =
+		GetMultiplayerShooterAbilitySystemComponent();
+	if (AbilitySystem)
+	{
+		AbilitySystem->AbilityInputPressed(InputTag);
+	}
+}
+
+void AMultiplayerShooterPlayerController::Input_AbilityInputReleased(FGameplayTag InputTag)
+{
+	UMultiplayerShooterAbilitySystemComponent* AbilitySystem =
+		GetMultiplayerShooterAbilitySystemComponent();
+	if (AbilitySystem)
+	{
+		AbilitySystem->AbilityInputReleased(InputTag);
+	}
+}
+
 void AMultiplayerShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -76,4 +123,13 @@ void AMultiplayerShooterPlayerController::BeginPlay()
 			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 		Subsystem->AddMappingContext(DefaultInputMapping, 0);
 	}
+}
+
+UMultiplayerShooterAbilitySystemComponent* AMultiplayerShooterPlayerController::GetMultiplayerShooterAbilitySystemComponent() const
+{
+	const AMultiplayerShooterCharacter* MultiplayerShooterCharacter =
+		GetPawn<AMultiplayerShooterCharacter>();
+	return IsValid(MultiplayerShooterCharacter)
+		       ? MultiplayerShooterCharacter->GetAbilitySystemComponent<UMultiplayerShooterAbilitySystemComponent>()
+		       : nullptr;
 }
