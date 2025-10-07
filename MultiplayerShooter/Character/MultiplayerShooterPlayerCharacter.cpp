@@ -2,7 +2,14 @@
 #include "AbilitySystemComponent.h"
 #include "MultiplayerShooterGameplayTags.h"
 #include "Animation/MultiplayerShooterAnimInstance.h"
+#include "Equipment/MultiplayerShooterEquipmentManagerComponent.h"
 #include "Player/MultiplayerShooterPlayerState.h"
+
+AMultiplayerShooterPlayerCharacter::AMultiplayerShooterPlayerCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	EquipmentManagerComponent = CreateDefaultSubobject<UMultiplayerShooterEquipmentManagerComponent>(TEXT("EquipmentManagerComponent"));
+}
 
 void AMultiplayerShooterPlayerCharacter::PossessedBy(AController* NewController)
 {
@@ -15,6 +22,11 @@ void AMultiplayerShooterPlayerCharacter::PossessedBy(AController* NewController)
 		FGameplayAbilitySpec AbilitySpec(AimingAbility);
 		AbilitySpec.GetDynamicSpecSourceTags().AddTag(MultiplayerShooterGameplayTags::Input_Action_Aim);
 		AbilitySystemComponent->GiveAbility(AbilitySpec);
+	}
+
+	for (TSubclassOf EquipmentDefinition : StartupEquipments)
+	{
+		EquipmentManagerComponent->Equip(EquipmentDefinition);
 	}
 }
 

@@ -24,6 +24,7 @@ public class MultiplayerShooter : ModuleRules
 		PrivateDependencyModuleNames.AddRange([
 			"InputCore",
 			"EnhancedInput",
+			"NetCore"
 		]);
 
 		// Uncomment if you are using Slate UI
