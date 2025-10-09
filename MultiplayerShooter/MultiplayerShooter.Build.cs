@@ -19,6 +19,7 @@ public class MultiplayerShooter : ModuleRules
 			"GameplayTags",
 			"GameplayTasks",
 			"GameplayAbilities",
+			"Niagara"
 		]);
 
 		PrivateDependencyModuleNames.AddRange([
