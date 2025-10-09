@@ -22,6 +22,9 @@ public:
 	UMultiplayerShooterGameplayAbility(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	EMultiplayerShooterAbilityActivationPolicy GetActivationPolicy() const;
+
+	UFUNCTION(BlueprintPure, Category="MultiplayerShooter|Ability")
+	AController* GetControllerFromActorInfo() const;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MultiplayerShooter|Ability Activation")
