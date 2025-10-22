@@ -64,6 +64,18 @@ APawn* UMultiplayerShooterEquipmentInstance::GetPawn() const
 	return Cast<APawn>(GetOuter());
 }
 
+APawn* UMultiplayerShooterEquipmentInstance::GetTypedPawn(TSubclassOf<APawn> PawnType) const
+{
+	if (UClass* ActualPawnType = PawnType)
+	{
+		if (GetOuter()->IsA(ActualPawnType))
+		{
+			return Cast<APawn>(GetOuter());
+		}
+	}
+	return nullptr;
+}
+
 int64 UMultiplayerShooterEquipmentInstance::GetEquipmentId() const
 {
 	return EquipmentId;

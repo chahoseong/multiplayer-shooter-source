@@ -2,13 +2,17 @@
 #include "AbilitySystemComponent.h"
 #include "MultiplayerShooterGameplayTags.h"
 #include "Animation/MultiplayerShooterAnimInstance.h"
+#include "Camera/MultiplayerShooterCameraMode.h"
+#include "Camera/MultiplayerShooterCameraStateComponent.h"
 #include "Equipment/MultiplayerShooterEquipmentManagerComponent.h"
+#include "Player/MultiplayerShooterPlayerController.h"
 #include "Player/MultiplayerShooterPlayerState.h"
 
 AMultiplayerShooterPlayerCharacter::AMultiplayerShooterPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	EquipmentManagerComponent = CreateDefaultSubobject<UMultiplayerShooterEquipmentManagerComponent>(TEXT("EquipmentManagerComponent"));
+	CameraStateComponent = CreateDefaultSubobject<UMultiplayerShooterCameraStateComponent>(TEXT("CameraStateComponent"));
 }
 
 void AMultiplayerShooterPlayerCharacter::PossessedBy(AController* NewController)
@@ -27,6 +31,49 @@ void AMultiplayerShooterPlayerCharacter::PossessedBy(AController* NewController)
 	for (TSubclassOf EquipmentDefinition : StartupEquipments)
 	{
 		EquipmentManagerComponent->Equip(EquipmentDefinition);
+	}
+}
+
+void AMultiplayerShooterPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (IsLocallyControlled())
+	{
+		CameraStateComponent->DetermineCameraModeDelegate.BindUObject(
+			this,
+			&ThisClass::DetermineCameraMode
+		);
+	}
+}
+
+TSubclassOf<UMultiplayerShooterCameraMode> AMultiplayerShooterPlayerCharacter::DetermineCameraMode() const
+{
+	if (CurrentAbilityCameraMode)
+	{
+		return CurrentAbilityCameraMode;
+	}
+	
+	return DefaultCameraMode;
+}
+
+void AMultiplayerShooterPlayerCharacter::SetAbilityCameraMode(TSubclassOf<UMultiplayerShooterCameraMode> CameraMode,
+                                                              const FGameplayAbilitySpecHandle& OwningAbilitySpec)
+{
+	if (CameraMode)
+	{
+		CurrentAbilityCameraMode = CameraMode;
+		AbilityCameraModeSource = OwningAbilitySpec;
+	}
+
+}
+
+void AMultiplayerShooterPlayerCharacter::ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningAbilitySpec)
+{
+	if (AbilityCameraModeSource == OwningAbilitySpec)
+	{
+		CurrentAbilityCameraMode = nullptr;
+		AbilityCameraModeSource = FGameplayAbilitySpecHandle();
 	}
 }
 

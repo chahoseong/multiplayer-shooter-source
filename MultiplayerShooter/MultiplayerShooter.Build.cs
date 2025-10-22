@@ -19,13 +19,15 @@ public class MultiplayerShooter : ModuleRules
 			"GameplayTags",
 			"GameplayTasks",
 			"GameplayAbilities",
-			"Niagara"
+			"Niagara",
+			"AIModule"
 		]);
 
 		PrivateDependencyModuleNames.AddRange([
 			"InputCore",
 			"EnhancedInput",
-			"NetCore"
+			"NetCore",
+			"UMG"
 		]);
 
 		// Uncomment if you are using Slate UI

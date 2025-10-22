@@ -9,6 +9,36 @@ UMultiplayerShooterAbilitySystemComponent::UMultiplayerShooterAbilitySystemCompo
 	ClearAbilityInput();
 }
 
+void UMultiplayerShooterAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
+{
+	FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get();
+	check(ActorInfo);
+	check(InOwnerActor);
+	
+	const bool bHasNewAvatar = InAvatarActor && InAvatarActor != ActorInfo->AvatarActor;
+
+	Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
+
+	if (bHasNewAvatar)
+	{
+		// for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
+		// {
+		// 	TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
+		// 	for (UGameplayAbility* AbilityInstance : Instances)
+		// 	{
+		// 		UMultiplayerShooterGameplayAbility* MultiplayerShooterAbility =
+		// 			Cast<UMultiplayerShooterGameplayAbility>(AbilityInstance);
+		// 		if (MultiplayerShooterAbility)
+		// 		{
+		// 			
+		// 		}
+		// 	}
+		// }
+
+		TryActivateAbilityOnGiven();
+	}
+}
+
 void UMultiplayerShooterAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGamePaused)
 {
 	if (HasMatchingGameplayTag(MultiplayerShooterGameplayTags::Gameplay_AbilityInputBlocked))
@@ -106,6 +136,21 @@ void UMultiplayerShooterAbilitySystemComponent::ClearAbilityInput()
 	InputPressedSpecHandles.Reset();
 	InputReleasedSpecHandles.Reset();
 	InputHeldSpecHandles.Reset();
+}
+
+void UMultiplayerShooterAbilitySystemComponent::TryActivateAbilityOnGiven()
+{
+	ABILITYLIST_SCOPE_LOCK()
+
+	for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
+	{
+		const UMultiplayerShooterGameplayAbility* Ability =
+			Cast<UMultiplayerShooterGameplayAbility>(AbilitySpec.Ability);
+		if (Ability)
+		{
+			Ability->TryActivateAbilityOnGiven(AbilityActorInfo.Get(), AbilitySpec);
+		}
+	}
 }
 
 void UMultiplayerShooterAbilitySystemComponent::AbilityInputPressed(const FGameplayTag& InputTag)

@@ -4,6 +4,8 @@
 #include "AbilitySystemInterface.h"
 #include "MultiplayerShooterCharacter.generated.h"
 
+struct FGameplayTag;
+class UMultiplayerShooterEquipmentInstance;
 class UGameplayAbility;
 class UAttributeSet;
 class UAbilitySystemComponent;
@@ -31,11 +33,14 @@ public:
 	{
 		return Cast<T>(GetAttributeSet());
 	}
-
+	
 protected:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
+
+	UPROPERTY(Transient, BlueprintReadWrite)
+	FVector LeftHandEffectorLocation;
 };

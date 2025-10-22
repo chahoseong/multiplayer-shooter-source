@@ -62,9 +62,9 @@ public:
 	void GiveToAbilitySystem(FMultiplayerShooterAbilitySet_GrantedHandles& OutGrantedHandles, UAbilitySystemComponent* AbilitySystem, UObject* SourceObject = nullptr) const;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category="Gameplay Abilities")
+	UPROPERTY(EditDefaultsOnly, Category="Gameplay Abilities", meta=(TitleProperty="AbilityClass"))
 	TArray<FMultiplayerShooterAbilitySet_GameplayAbility> AbilitiesToGrant;
 
-	UPROPERTY(EditDefaultsOnly, Category="Gameplay Effects")
+	UPROPERTY(EditDefaultsOnly, Category="Gameplay Effects", meta=(TitleProperty="EffectClass"))
 	TArray<FMultiplayerShooterAbilitySet_GameplayEffect> GameplayEffectsToApply;
 };

@@ -1,5 +1,6 @@
 ﻿#include "AbilitySystem/Abilities/Tasks/AbilityTask_AimTrace.h"
 #include "AbilitySystemComponent.h"
+#include "Player/MultiplayerShooterPlayerController.h"
 
 UAbilityTask_AimTrace* UAbilityTask_AimTrace::AimTrace(UGameplayAbility* OwningAbility, float MaxRange)
 {
@@ -43,37 +44,12 @@ void UAbilityTask_AimTrace::Activate()
 void UAbilityTask_AimTrace::SendAimTraceHitResult() const
 {
 	FScopedPredictionWindow ScopedPredictionWindow(AbilitySystemComponent.Get());
-
-	APlayerController* PlayerController =
-		Ability->GetCurrentActorInfo()->PlayerController.Get();
-	check(PlayerController);
-
-	FVector ViewStart;
-	FRotator ViewRotation;
-	PlayerController->GetPlayerViewPoint(ViewStart, ViewRotation);
-	const FVector ViewDirection = ViewRotation.Vector();
-	FVector ViewEnd = ViewStart + ViewDirection * MaxRange;
 	
-	UWorld* World = PlayerController->GetWorld();
-	FCollisionQueryParams QueryParams(
-		SCENE_QUERY_STAT(AimTrace_SendAimTraceHitResult),
-		false,
-		PlayerController->GetPawn()
-	);
-	
+	const AMultiplayerShooterPlayerController* PlayerController =
+		CastChecked<AMultiplayerShooterPlayerController>(Ability->GetCurrentActorInfo()->PlayerController.Get());
+
 	FHitResult Hit;
-	World->LineTraceSingleByChannel(
-		Hit,
-		ViewStart,
-		ViewEnd,
-		ECC_Visibility,
-		QueryParams
-	);
-
-	if (!Hit.bBlockingHit)
-	{
-		Hit.ImpactPoint = ViewEnd;
-	}
+	PlayerController->GetHitResultFromPlayerViewPoint(Hit, MaxRange);
 
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 	TargetDataHandle.Add(new FGameplayAbilityTargetData_SingleTargetHit(Hit));

@@ -8,11 +8,11 @@ class UMultiplayerShooterEquipmentInstance;
 
 UCLASS()
 class MULTIPLAYERSHOOTER_API
-	UMultiplayerShooterGameplayAbility_FromEquipment : public UMultiplayerShooterGameplayAbility
+UMultiplayerShooterGameplayAbility_FromEquipment : public UMultiplayerShooterGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category="MultiplayerShooter|Ability")
+	UFUNCTION(BlueprintPure, Category="MultiplayerShooter|Ability")
 	UMultiplayerShooterEquipmentInstance* GetAssociatedEquipment() const;
 };

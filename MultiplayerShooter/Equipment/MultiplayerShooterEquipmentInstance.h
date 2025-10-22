@@ -15,7 +15,7 @@ class MULTIPLAYERSHOOTER_API UMultiplayerShooterEquipmentInstance : public UObje
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual bool IsSupportedForNetworking() const override;
-	
+
 	virtual void SpawnEquipmentActors(const TArray<FMultiplayerShooterEquipmentActorToSpawn>& ActorsToSpawn);
 	virtual void DestroyEquipmentActors();
 
@@ -23,6 +23,15 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="Equipment")
 	APawn* GetPawn() const;
+
+	UFUNCTION(BlueprintPure, Category="Equipment", meta=(DeterminesOutputType=PawnType))
+	APawn* GetTypedPawn(TSubclassOf<APawn> PawnType) const;
+
+	template <typename T> requires (std::is_base_of_v<APawn, T>)
+	T* GetPawn() const 
+	{
+		return Cast<T>(GetPawn());
+	}
 
 	UFUNCTION(BlueprintPure, Category="Equipment")
 	int64 GetEquipmentId() const;

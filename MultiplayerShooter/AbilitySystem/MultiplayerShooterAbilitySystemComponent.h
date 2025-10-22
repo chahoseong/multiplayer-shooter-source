@@ -14,8 +14,12 @@ class MULTIPLAYERSHOOTER_API UMultiplayerShooterAbilitySystemComponent : public 
 public:
 	UMultiplayerShooterAbilitySystemComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
+	
 	void ProcessAbilityInput(float DeltaTime, bool bGamePaused);
 	void ClearAbilityInput();
+
+	void TryActivateAbilityOnGiven();
 
 	void AbilityInputPressed(const FGameplayTag& InputTag);
 	void AbilityInputReleased(const FGameplayTag& InputTag);

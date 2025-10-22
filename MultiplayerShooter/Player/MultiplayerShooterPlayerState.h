@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerState.h"
 #include "MultiplayerShooterPlayerState.generated.h"
 
+class UMultiplayerShooterAbilitySystemComponent;
 class UAttributeSet;
 class UAbilitySystemComponent;
 
@@ -17,6 +18,13 @@ public:
 	AMultiplayerShooterPlayerState(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	template <typename T> requires std::is_base_of_v<UAbilitySystemComponent, UMultiplayerShooterAbilitySystemComponent>
+	UMultiplayerShooterAbilitySystemComponent* GetAbilitySystemComponent() const
+	{
+		return Cast<T>(GetAbilitySystemComponent());
+	}
+	
 	UAttributeSet* GetAttributeSet() const;
 	
 protected:
