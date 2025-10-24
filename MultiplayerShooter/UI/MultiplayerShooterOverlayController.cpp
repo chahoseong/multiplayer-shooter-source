@@ -1,11 +1,12 @@
 ﻿#include "UI/MultiplayerShooterOverlayController.h"
+
+#include "Player/MultiplayerShooterPlayerController.h"
 #include "UI/MultiplayerShooterHUD.h"
 #include "UI/MultiplayerShooterUserWidget.h"
 
-UMultiplayerShooterOverlayController* UMultiplayerShooterOverlayController::GetOverlayController(
-	APlayerController* InPlayerController)
+UMultiplayerShooterOverlayController* UMultiplayerShooterOverlayController::GetOverlayController(APlayerController* InPlayerController)
 {
-	if (AMultiplayerShooterHUD* HUD = InPlayerController->GetHUD<AMultiplayerShooterHUD>())
+	if (const AMultiplayerShooterHUD* HUD = InPlayerController->GetHUD<AMultiplayerShooterHUD>())
 	{
 		return HUD->GetOverlayController();
 	}
@@ -27,7 +28,7 @@ void UMultiplayerShooterOverlayController::UpdateCrosshairSpread(float BaseSprea
 	OnCrosshairSpread.Broadcast(BaseSpreadAngle, SpreadAngleMultiplier);
 }
 
-void UMultiplayerShooterOverlayController::SetTarget(AActor* NewTarget)
+void UMultiplayerShooterOverlayController::SetTarget(const AActor* NewTarget, ETeamAttitude::Type Attitude) const
 {
-	OnTargetChanged.Broadcast(NewTarget);
+	OnTargetChanged.Broadcast(NewTarget, Attitude);
 }

@@ -19,16 +19,71 @@ AMultiplayerShooterPlayerController::AMultiplayerShooterPlayerController(const F
 void AMultiplayerShooterPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
+
+	FHitResult CurrentHit;
+	GetHitResultFromPlayerViewPoint(CurrentHit, AimMaxRange);
+	UpdateTargetingOverlay(CurrentHit);
+	AimHitResult = CurrentHit; 
+}
+
+void AMultiplayerShooterPlayerController::GetHitResultFromPlayerViewPoint(FHitResult& OutHit, float MaxRange) const
+{
+	FVector ViewStart;
+	FRotator ViewRotation;
+	GetPlayerViewPoint(ViewStart, ViewRotation);
+	FVector ViewEnd = ViewStart + ViewRotation.Vector() * AimMaxRange;
+
+	FCollisionQueryParams QueryParams(
+	SCENE_QUERY_STAT(AMultiplayerShooterPlayerController_GetHitResultFromPlayerViewPoint),
+		false,
+		GetPawn()
+	);
 	
-	GetHitResultFromPlayerViewPoint(AimHitResult, AimMaxRange);
-	if (const AMultiplayerShooterHUD* MultiplayerShooterHUD = GetMultiplayerShooterHUD())
+	GetWorld()->LineTraceSingleByChannel(
+		OutHit,
+		ViewStart,
+		ViewEnd,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	if (!OutHit.bBlockingHit)
 	{
-		UMultiplayerShooterOverlayController* OverlayController =
-			MultiplayerShooterHUD->GetOverlayController();
-		if (OverlayController)
+		OutHit.ImpactPoint = ViewEnd;
+	}
+}
+
+void AMultiplayerShooterPlayerController::UpdateTargetingOverlay(const FHitResult& Hit)
+{
+	AActor* OtherActor = Hit.GetActor();
+
+	if (AimHitResult.GetActor() == Hit.GetActor())
+	{
+		return;
+	}
+
+	if (GetGenericTeamId() == FGenericTeamId::NoTeam)
+	{
+		return;
+	}
+
+	UMultiplayerShooterOverlayController* OverlayController =
+		UMultiplayerShooterOverlayController::GetOverlayController(this);
+	
+	if (const IGenericTeamAgentInterface* OtherTeamAgentInterface = Cast<IGenericTeamAgentInterface>(OtherActor))
+	{
+		const bool bOtherHasTeam = OtherTeamAgentInterface->GetGenericTeamId() != FGenericTeamId::NoTeam;
+		const bool bIsDifferentTeam = GetGenericTeamId() != OtherTeamAgentInterface->GetGenericTeamId();
+
+		if (bOtherHasTeam && bIsDifferentTeam)
 		{
-			OverlayController->SetTarget(AimHitResult.GetActor());
+			OverlayController->SetTarget(OtherActor,
+				(bIsDifferentTeam ? ETeamAttitude::Hostile : ETeamAttitude::Neutral));
 		}
+	}
+	else
+	{
+		OverlayController->SetTarget(nullptr, ETeamAttitude::Neutral);
 	}
 }
 
@@ -62,36 +117,23 @@ void AMultiplayerShooterPlayerController::OnRep_PlayerState()
 	}
 }
 
-void AMultiplayerShooterPlayerController::GetHitResultFromPlayerViewPoint(FHitResult& OutHit, float MaxRange) const
-{
-	FVector ViewStart;
-	FRotator ViewRotation;
-	GetPlayerViewPoint(ViewStart, ViewRotation);
-	FVector ViewEnd = ViewStart + ViewRotation.Vector() * AimMaxRange;
-
-	FCollisionQueryParams QueryParams(
-	SCENE_QUERY_STAT(AMultiplayerShooterPlayerController_GetHitResultFromPlayerViewPoint),
-		false,
-		GetPawn()
-	);
-	
-	GetWorld()->LineTraceSingleByChannel(
-		OutHit,
-		ViewStart,
-		ViewEnd,
-		ECC_Visibility,
-		QueryParams
-	);
-
-	if (!OutHit.bBlockingHit)
-	{
-		OutHit.ImpactPoint = ViewEnd;
-	}
-}
-
 const FHitResult& AMultiplayerShooterPlayerController::GetAimHitResult() const
 {
 	return AimHitResult;
+}
+
+void AMultiplayerShooterPlayerController::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	UE_LOG(LogTemp, Error, TEXT("You can't set the team ID on a player controller (%s); it's driven by the associated player state"), *GetPathNameSafe(this));
+}
+
+FGenericTeamId AMultiplayerShooterPlayerController::GetGenericTeamId() const
+{
+	if (const IGenericTeamAgentInterface* TeamAgentInterface = Cast<IGenericTeamAgentInterface>(PlayerState))
+	{
+		return TeamAgentInterface->GetGenericTeamId();
+	}
+	return FGenericTeamId::NoTeam;
 }
 
 AMultiplayerShooterHUD* AMultiplayerShooterPlayerController::GetMultiplayerShooterHUD() const

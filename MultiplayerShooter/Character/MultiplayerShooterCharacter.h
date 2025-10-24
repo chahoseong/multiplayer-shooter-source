@@ -2,6 +2,7 @@
 
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "GenericTeamAgentInterface.h"
 #include "MultiplayerShooterCharacter.generated.h"
 
 struct FGameplayTag;
@@ -11,7 +12,7 @@ class UAttributeSet;
 class UAbilitySystemComponent;
 
 UCLASS()
-class MULTIPLAYERSHOOTER_API AMultiplayerShooterCharacter : public ACharacter, public IAbilitySystemInterface
+class MULTIPLAYERSHOOTER_API AMultiplayerShooterCharacter : public ACharacter, public IAbilitySystemInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -33,6 +34,9 @@ public:
 	{
 		return Cast<T>(GetAttributeSet());
 	}
+
+	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
 	
 protected:
 	UPROPERTY()

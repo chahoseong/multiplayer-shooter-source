@@ -1,12 +1,13 @@
 ﻿#pragma once
 
+#include "GenericTeamAgentInterface.h"
 #include "MultiplayerShooterWidgetController.h"
 #include "MultiplayerShooterOverlayController.generated.h"
 
 class UMultiplayerShooterUserWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCrosshairSpread, float, Base, float, Multiplier);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetChanged, AActor*, NewTarget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTargetChanged, const AActor*, NewTarget, ETeamAttitude::Type, Attitude);
 
 UCLASS(Blueprintable, BlueprintType)
 class MULTIPLAYERSHOOTER_API UMultiplayerShooterOverlayController : public UMultiplayerShooterWidgetController
@@ -23,9 +24,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateCrosshairSpread(float BaseSpreadAngle, float SpreadAngleMultiplier);
-
-	UFUNCTION(BlueprintCallable)
-	void SetTarget(AActor* NewTarget);
+	
+	void SetTarget(const AActor* NewTarget, ETeamAttitude::Type Attitude) const;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCrosshairSpread OnCrosshairSpread;

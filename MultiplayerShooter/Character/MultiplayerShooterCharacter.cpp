@@ -39,3 +39,35 @@ UAttributeSet* AMultiplayerShooterCharacter::GetAttributeSet() const
 {
 	return AttributeSet;
 }
+
+void AMultiplayerShooterCharacter::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	if (GetController())
+	{
+		if (HasAuthority())
+		{
+			AMultiplayerShooterPlayerState* MultiplayerShooterPlayerState =
+				GetPlayerState<AMultiplayerShooterPlayerState>();
+			MultiplayerShooterPlayerState->SetGenericTeamId(TeamID);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("You can't set the team ID on a character (%s) except on the authority"), *GetPathNameSafe(this));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("You can't set the team ID on a possessed character (%s); it's driven by the associated controller"), *GetPathNameSafe(this));
+	}
+}
+
+FGenericTeamId AMultiplayerShooterCharacter::GetGenericTeamId() const
+{
+	const AMultiplayerShooterPlayerState* MultiplayerShooterPlayerState =
+		GetPlayerState<AMultiplayerShooterPlayerState>();
+	if (MultiplayerShooterPlayerState)
+	{
+		return MultiplayerShooterPlayerState->GetGenericTeamId();
+	}
+	return FGenericTeamId::NoTeam;
+}

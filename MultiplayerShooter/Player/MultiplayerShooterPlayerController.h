@@ -29,6 +29,11 @@ public:
 	void GetHitResultFromPlayerViewPoint(FHitResult& OutHit, float MaxRange) const;
 	const FHitResult& GetAimHitResult() const;
 
+	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
+
+	void UpdateTargetingOverlay(const FHitResult& Hit);
+
 	UFUNCTION(BlueprintPure)
 	AMultiplayerShooterHUD* GetMultiplayerShooterHUD() const;
 	
@@ -49,10 +54,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UMultiplayerShooterInputConfig> InputConfig;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Team")
-	FGenericTeamId TeamId;
-
+	
 	UPROPERTY(EditDefaultsOnly)
 	float AimMaxRange = 999999.0f;
 
