@@ -2,15 +2,24 @@
 #include "AbilitySystemComponent.h"
 #include "MultiplayerShooterGameplayTags.h"
 #include "Animation/MultiplayerShooterAnimInstance.h"
+#include "Camera/CameraComponent.h"
 #include "Camera/MultiplayerShooterCameraMode.h"
 #include "Camera/MultiplayerShooterCameraStateComponent.h"
 #include "Equipment/MultiplayerShooterEquipmentManagerComponent.h"
-#include "Player/MultiplayerShooterPlayerController.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Player/MultiplayerShooterPlayerState.h"
 
 AMultiplayerShooterPlayerCharacter::AMultiplayerShooterPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	PrimaryActorTick.bCanEverTick = true;
+
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	SpringArmComponent->SetupAttachment(GetRootComponent());
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	CameraComponent->SetupAttachment(SpringArmComponent);
+	
 	EquipmentManagerComponent = CreateDefaultSubobject<UMultiplayerShooterEquipmentManagerComponent>(TEXT("EquipmentManagerComponent"));
 	CameraStateComponent = CreateDefaultSubobject<UMultiplayerShooterCameraStateComponent>(TEXT("CameraStateComponent"));
 }
@@ -44,6 +53,20 @@ void AMultiplayerShooterPlayerCharacter::BeginPlay()
 			this,
 			&ThisClass::DetermineCameraMode
 		);
+	}
+}
+
+void AMultiplayerShooterPlayerCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (IsLocallyControlled())
+	{
+		const float DistanceToCamera =
+			(CameraComponent->GetComponentLocation() - GetActorLocation()).Size();
+		const bool bIsHidden = DistanceToCamera < HideDistanceThreshold;
+		GetMesh()->SetVisibility(!bIsHidden);
+		EquipmentManagerComponent->SetEquipmentsVisibility(!bIsHidden);
 	}
 }
 

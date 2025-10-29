@@ -1,6 +1,8 @@
 ﻿#include "Character/MultiplayerShooterCharacter.h"
 #include "MultiplayerShooterCharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Physics/MultiplayerShooterCollisionChannels.h"
 #include "Player/MultiplayerShooterPlayerState.h"
 
 AMultiplayerShooterCharacter::AMultiplayerShooterCharacter(const FObjectInitializer& ObjectInitializer)
@@ -9,6 +11,21 @@ AMultiplayerShooterCharacter::AMultiplayerShooterCharacter(const FObjectInitiali
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
+
+	// Collision
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(MultiplayerShooter_ObjectChannel_Projectile, ECR_Ignore);
+
+	GetMesh()->SetCollisionObjectType(MultiplayerShooter_ObjectChannel_Character);
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(MultiplayerShooter_ObjectChannel_Projectile, ECR_Block);
+
+	// Movement
 	UMultiplayerShooterCharacterMovementComponent* MultiplayerShooterCharacterMovement =
 		CastChecked<UMultiplayerShooterCharacterMovementComponent>(GetCharacterMovement());
 	MultiplayerShooterCharacterMovement->GravityScale = 1.0f;
@@ -24,10 +41,6 @@ AMultiplayerShooterCharacter::AMultiplayerShooterCharacter(const FObjectInitiali
 	MultiplayerShooterCharacterMovement->GetNavAgentPropertiesRef().bCanCrouch = true;
 	MultiplayerShooterCharacterMovement->bCanWalkOffLedgesWhenCrouching = true;
 	MultiplayerShooterCharacterMovement->SetCrouchedHalfHeight(65.0f);
-
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = true;
-	bUseControllerRotationRoll = false;
 }
 
 UAbilitySystemComponent* AMultiplayerShooterCharacter::GetAbilitySystemComponent() const

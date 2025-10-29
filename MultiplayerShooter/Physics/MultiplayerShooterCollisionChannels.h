@@ -1,0 +1,4 @@
+﻿#pragma once
+
+#define MultiplayerShooter_ObjectChannel_Character ECC_GameTraceChannel1
+#define MultiplayerShooter_ObjectChannel_Projectile ECC_GameTraceChannel2

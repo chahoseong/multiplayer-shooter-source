@@ -3,6 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "MultiplayerShooterProjectile.generated.h"
 
+class UBoxComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
@@ -14,6 +15,9 @@ public:
 	AMultiplayerShooterProjectile(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UBoxComponent> BoxComponent;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 };

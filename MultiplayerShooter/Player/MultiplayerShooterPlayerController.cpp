@@ -31,6 +31,13 @@ void AMultiplayerShooterPlayerController::GetHitResultFromPlayerViewPoint(FHitRe
 	FVector ViewStart;
 	FRotator ViewRotation;
 	GetPlayerViewPoint(ViewStart, ViewRotation);
+
+	if (const APawn* ControlledPawn = GetPawn())
+	{
+		const float DistanceToTarget = (ControlledPawn->GetActorLocation() - ViewStart).Size();
+		ViewStart += ViewRotation.Vector() * (DistanceToTarget + 100.0f);
+	}
+	
 	FVector ViewEnd = ViewStart + ViewRotation.Vector() * AimMaxRange;
 
 	FCollisionQueryParams QueryParams(
