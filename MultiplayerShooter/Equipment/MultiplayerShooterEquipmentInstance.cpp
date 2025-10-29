@@ -50,6 +50,23 @@ void UMultiplayerShooterEquipmentInstance::DestroyEquipmentActors()
 	SpawnedActors.Reset();
 }
 
+void UMultiplayerShooterEquipmentInstance::SetVisibility(bool bVisible)
+{
+	for (const AActor* Actor : SpawnedActors)
+	{
+		if (IsValid(Actor))
+		{
+			UMeshComponent* MeshComponent =
+				Actor->FindComponentByClass<UMeshComponent>();
+			if (MeshComponent)
+			{
+				MeshComponent->bOwnerNoSee = !bVisible;
+			}
+		}
+
+	}
+}
+
 UWorld* UMultiplayerShooterEquipmentInstance::GetWorld() const
 {
 	if (APawn* OwningPawn = GetPawn())

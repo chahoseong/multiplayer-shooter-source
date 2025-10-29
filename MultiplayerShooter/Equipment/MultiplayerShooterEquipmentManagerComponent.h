@@ -31,7 +31,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UMultiplayerShooterEquipmentInstance* GetEquipmentInstance(const FGameplayTag& EquipmentSlotTag) const;
-
+	
+	void SetEquipmentsVisibility(bool bVisible);
+	
 protected:
 	void OnEquipmentEntryReplicatedAdd(const FMultiplayerShooterAppliedEquipmentEntry& Entry);
 	void OnEquipmentEntryReplicatedRemove(const FMultiplayerShooterAppliedEquipmentEntry& Entry);

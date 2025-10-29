@@ -19,6 +19,8 @@ public:
 	virtual void SpawnEquipmentActors(const TArray<FMultiplayerShooterEquipmentActorToSpawn>& ActorsToSpawn);
 	virtual void DestroyEquipmentActors();
 
+	void SetVisibility(bool bVisible);
+
 	virtual UWorld* GetWorld() const override;
 
 	UFUNCTION(BlueprintPure, Category="Equipment")

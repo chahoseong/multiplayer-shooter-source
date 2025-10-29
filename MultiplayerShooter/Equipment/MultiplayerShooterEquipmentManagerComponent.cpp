@@ -131,6 +131,17 @@ UMultiplayerShooterEquipmentInstance* UMultiplayerShooterEquipmentManagerCompone
 	return SlotsToEquipments.FindRef(EquipmentSlotTag);
 }
 
+void UMultiplayerShooterEquipmentManagerComponent::SetEquipmentsVisibility(bool bVisible)
+{
+	for (const auto& Entry : EquipmentList.Entries)
+	{
+		if (IsValid(Entry.EquipmentInstance))
+		{
+			Entry.EquipmentInstance->SetVisibility(bVisible);
+		}
+	}
+}
+
 void UMultiplayerShooterEquipmentManagerComponent::OnEquipmentEntryReplicatedAdd(
 	const FMultiplayerShooterAppliedEquipmentEntry& Entry)
 {
