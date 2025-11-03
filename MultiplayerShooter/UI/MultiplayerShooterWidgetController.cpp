@@ -4,3 +4,12 @@ void UMultiplayerShooterWidgetController::Initialize(APlayerController* NewPlaye
 {
 	PlayerController = NewPlayerController;	
 }
+
+APlayerState* UMultiplayerShooterWidgetController::GetPlayerState() const
+{
+	if (PlayerController.IsValid())
+	{
+		return PlayerController->PlayerState;
+	}
+	return nullptr;
+}

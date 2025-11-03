@@ -1,7 +1,9 @@
 ﻿#include "Character/MultiplayerShooterCharacter.h"
+#include "AbilitySystemComponent.h"
 #include "MultiplayerShooterCharacterMovementComponent.h"
+#include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/MultiplayerShooterAbilitySet.h"
 #include "Components/CapsuleComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Physics/MultiplayerShooterCollisionChannels.h"
 #include "Player/MultiplayerShooterPlayerState.h"
 
@@ -43,14 +45,45 @@ AMultiplayerShooterCharacter::AMultiplayerShooterCharacter(const FObjectInitiali
 	MultiplayerShooterCharacterMovement->SetCrouchedHalfHeight(65.0f);
 }
 
+void AMultiplayerShooterCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	InitializeAbilitySystem();
+
+	if (IsValid(InitialAbilitySet))
+	{
+		FMultiplayerShooterAbilitySet_GrantedHandles GrantedHandles;
+		InitialAbilitySet->GiveToAbilitySystem(GrantedHandles, AbilitySystemComponent);
+	}
+}
+
+void AMultiplayerShooterCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	
+	InitializeAbilitySystem();
+}
+
+void AMultiplayerShooterCharacter::InitializeAbilitySystem()
+{
+}
+
+void AMultiplayerShooterCharacter::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> EffectToApply, float Level) const
+{
+	const FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	const FGameplayEffectSpecHandle EffectSpec = AbilitySystemComponent->MakeOutgoingSpec(EffectToApply, Level, EffectContext);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data);
+}
+
 UAbilitySystemComponent* AMultiplayerShooterCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
 
-UAttributeSet* AMultiplayerShooterCharacter::GetAttributeSet() const
+UMultiplayerShooterHealthSet* AMultiplayerShooterCharacter::GetHealthSet() const
 {
-	return AttributeSet;
+	return HealthSet;
 }
 
 void AMultiplayerShooterCharacter::SetGenericTeamId(const FGenericTeamId& TeamID)

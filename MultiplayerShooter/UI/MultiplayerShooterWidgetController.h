@@ -12,6 +12,14 @@ class MULTIPLAYERSHOOTER_API UMultiplayerShooterWidgetController : public UObjec
 public:
 	virtual void Initialize(APlayerController* NewPlayerController);
 
+	APlayerState* GetPlayerState() const;
+
+	template <typename T> requires std::is_base_of_v<APlayerState, T>
+	T* GetPlayerState() const
+	{
+		return Cast<T>(GetPlayerState());
+	}
+	
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<APlayerController> PlayerController;

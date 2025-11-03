@@ -28,17 +28,13 @@ public:
 		const FGameplayAbilitySpecHandle& OwningAbilitySpec);
 	void ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningAbilitySpec);
 
-	virtual void OnRep_PlayerState() override;
-
+protected:
+	virtual void InitializeAbilitySystem() override;
+	
 private:
-	void InitializeAbilitySystem();
 	TSubclassOf<UMultiplayerShooterCameraMode> DetermineCameraMode() const;
-	void CheckDistanceToCamera();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category="Abilities")
-	TSubclassOf<UGameplayAbility> AimingAbility;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 

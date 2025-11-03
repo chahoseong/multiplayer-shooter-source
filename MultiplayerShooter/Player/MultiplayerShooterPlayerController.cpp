@@ -245,12 +245,18 @@ void AMultiplayerShooterPlayerController::BeginPlay()
 
 	if (IsLocalController())
 	{
+		// Input
 		UEnhancedInputLocalPlayerSubsystem* Subsystem =
 			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 		Subsystem->AddMappingContext(DefaultInputMapping, 0);
 
-		AMultiplayerShooterHUD* MultiplayerShooterHUD = GetHUD<AMultiplayerShooterHUD>();
-		MultiplayerShooterHUD->InitOverlay();
+		// Overlay
+		AMultiplayerShooterHUD* MultiplayerShooterHUD =
+			GetHUD<AMultiplayerShooterHUD>();
+		if (IsValid(MultiplayerShooterHUD))
+		{
+			MultiplayerShooterHUD->InitOverlay();
+		}
 	}
 }
 

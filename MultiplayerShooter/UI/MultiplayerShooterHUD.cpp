@@ -6,7 +6,9 @@
 void AMultiplayerShooterHUD::InitOverlay()
 {
 	ActiveOverlayWidget = CreateWidget<UMultiplayerShooterUserWidget>(GetOwningPlayerController(), OverlayWidgetClass);
-	ActiveOverlayWidget->SetWidgetController(GetOverlayController());
+	UMultiplayerShooterOverlayController* OverlayController = GetOverlayController();
+	ActiveOverlayWidget->SetWidgetController(OverlayController);
+	OverlayController->BroadcastInitialAttributes();
 	ActiveOverlayWidget->AddToViewport();
 }
 

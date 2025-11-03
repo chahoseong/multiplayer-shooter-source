@@ -6,6 +6,7 @@
 #include "GenericTeamAgentInterface.h"
 #include "MultiplayerShooterPlayerState.generated.h"
 
+class UMultiplayerShooterHealthSet;
 class UMultiplayerShooterAbilitySystemComponent;
 class UAttributeSet;
 class UAbilitySystemComponent;
@@ -28,7 +29,7 @@ public:
 		return Cast<T>(GetAbilitySystemComponent());
 	}
 	
-	UAttributeSet* GetAttributeSet() const;
+	UMultiplayerShooterHealthSet* GetHealthSet() const;
 
 	virtual void SetGenericTeamId(const FGenericTeamId& TeamId) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
@@ -42,7 +43,7 @@ protected:
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UAttributeSet> AttributeSet;
+	TObjectPtr<UMultiplayerShooterHealthSet> HealthSet;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_MyTeamId)
 	FGenericTeamId MyTeamId;

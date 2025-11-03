@@ -8,6 +8,7 @@
 #include "Equipment/MultiplayerShooterEquipmentManagerComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/MultiplayerShooterPlayerState.h"
+#include "UI/MultiplayerShooterHUD.h"
 
 AMultiplayerShooterPlayerCharacter::AMultiplayerShooterPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -27,16 +28,7 @@ AMultiplayerShooterPlayerCharacter::AMultiplayerShooterPlayerCharacter(const FOb
 void AMultiplayerShooterPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
-	InitializeAbilitySystem();
-
-	if (AimingAbility)
-	{
-		FGameplayAbilitySpec AbilitySpec(AimingAbility);
-		AbilitySpec.GetDynamicSpecSourceTags().AddTag(MultiplayerShooterGameplayTags::Input_Action_Aim);
-		AbilitySystemComponent->GiveAbility(AbilitySpec);
-	}
-
+	
 	for (TSubclassOf EquipmentDefinition : StartupEquipments)
 	{
 		EquipmentManagerComponent->Equip(EquipmentDefinition);
@@ -100,23 +92,22 @@ void AMultiplayerShooterPlayerCharacter::ClearAbilityCameraMode(const FGameplayA
 	}
 }
 
-void AMultiplayerShooterPlayerCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	InitializeAbilitySystem();
-}
-
 void AMultiplayerShooterPlayerCharacter::InitializeAbilitySystem()
 {
 	AMultiplayerShooterPlayerState* MultiplayerShooterPlayerState =
-	GetPlayerStateChecked<AMultiplayerShooterPlayerState>();
+		GetPlayerStateChecked<AMultiplayerShooterPlayerState>();
+
+	// Ability System
 	AbilitySystemComponent = MultiplayerShooterPlayerState->GetAbilitySystemComponent();
 	AbilitySystemComponent->InitAbilityActorInfo(MultiplayerShooterPlayerState, this);
 
+	// Attribute Sets
+	HealthSet = MultiplayerShooterPlayerState->GetHealthSet();
+
+	// Animation
 	UMultiplayerShooterAnimInstance* MultiplayerShooterAnimInstance =
 		Cast<UMultiplayerShooterAnimInstance>(GetMesh()->GetAnimInstance());
-	if (MultiplayerShooterAnimInstance)
+	if (IsValid(MultiplayerShooterAnimInstance))
 	{
 		MultiplayerShooterAnimInstance->InitializeWithAbilitySystem(AbilitySystemComponent);
 	}

@@ -1,5 +1,6 @@
 ﻿#include "Player/MultiplayerShooterPlayerState.h"
 #include "AbilitySystem/MultiplayerShooterAbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/MultiplayerShooterHealthSet.h"
 #include "Net/UnrealNetwork.h"
 
 AMultiplayerShooterPlayerState::AMultiplayerShooterPlayerState(const FObjectInitializer& ObjectInitializer)
@@ -9,6 +10,8 @@ AMultiplayerShooterPlayerState::AMultiplayerShooterPlayerState(const FObjectInit
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
+	HealthSet = CreateDefaultSubobject<UMultiplayerShooterHealthSet>(TEXT("HealthSet"));
+	
 	// AbilitySystemComponent needs to be updated at a high frequency.
 	SetNetUpdateFrequency(100.0f);
 
@@ -27,9 +30,9 @@ UAbilitySystemComponent* AMultiplayerShooterPlayerState::GetAbilitySystemCompone
 	return AbilitySystemComponent;
 }
 
-UAttributeSet* AMultiplayerShooterPlayerState::GetAttributeSet() const
+UMultiplayerShooterHealthSet* AMultiplayerShooterPlayerState::GetHealthSet() const
 {
-	return AttributeSet;
+	return HealthSet;
 }
 
 void AMultiplayerShooterPlayerState::SetGenericTeamId(const FGenericTeamId& TeamId)
