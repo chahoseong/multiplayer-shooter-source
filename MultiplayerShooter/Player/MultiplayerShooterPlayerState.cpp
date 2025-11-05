@@ -1,5 +1,6 @@
 ﻿#include "Player/MultiplayerShooterPlayerState.h"
 #include "AbilitySystem/MultiplayerShooterAbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/MultiplayerShooterCombatSet.h"
 #include "AbilitySystem/Attributes/MultiplayerShooterHealthSet.h"
 #include "Net/UnrealNetwork.h"
 
@@ -11,6 +12,7 @@ AMultiplayerShooterPlayerState::AMultiplayerShooterPlayerState(const FObjectInit
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	HealthSet = CreateDefaultSubobject<UMultiplayerShooterHealthSet>(TEXT("HealthSet"));
+	CombatSet = CreateDefaultSubobject<UMultiplayerShooterCombatSet>(TEXT("CombatSet"));
 	
 	// AbilitySystemComponent needs to be updated at a high frequency.
 	SetNetUpdateFrequency(100.0f);

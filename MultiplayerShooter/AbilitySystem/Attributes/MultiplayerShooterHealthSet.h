@@ -14,15 +14,23 @@ public:
 	
 	ATTRIBUTE_ACCESSORS(UMultiplayerShooterHealthSet, Health);
 	ATTRIBUTE_ACCESSORS(UMultiplayerShooterHealthSet, MaxHealth);
+	ATTRIBUTE_ACCESSORS(UMultiplayerShooterHealthSet, Damage);
 
 protected:
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override; 
 	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);
 
 	UFUNCTION()
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
+
+private:
+	FGameplayEventData MakeGameplayEventData(const FGameplayEffectSpec& EffectSpec, float Magnitude) const;
+	float ClampAttribute(const FGameplayAttribute& Attribute, float NewValue) const;
 	
 protected:
 	UPROPERTY(ReplicatedUsing=OnRep_Health)
@@ -30,4 +38,9 @@ protected:
 
 	UPROPERTY(ReplicatedUsing=OnRep_MaxHealth)
 	FGameplayAttributeData MaxHealth;
+
+	UPROPERTY()
+	FGameplayAttributeData Damage;
+
+	bool bOutOfHealth = false;
 };

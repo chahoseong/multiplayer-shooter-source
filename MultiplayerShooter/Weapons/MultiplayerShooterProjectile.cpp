@@ -1,5 +1,7 @@
 ﻿#include "Weapons/MultiplayerShooterProjectile.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Physics/MultiplayerShooterCollisionChannels.h"
@@ -26,4 +28,36 @@ AMultiplayerShooterProjectile::AMultiplayerShooterProjectile(const FObjectInitia
 	// Networking
 	bReplicates = true;
 	SetReplicatingMovement(true);
+}
+
+void AMultiplayerShooterProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		BoxComponent->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
+	}
+}
+
+void AMultiplayerShooterProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UAbilitySystemComponent* OtherAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OtherActor);
+	if (IsValid(OtherAbilitySystem) && IsValid(DamageEffectClass))
+	{
+		const UAbilitySystemComponent* OwningAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetInstigator());
+		FGameplayEffectContextHandle EffectContext = OwningAbilitySystem->MakeEffectContext();
+		EffectContext.AddSourceObject(this);
+		EffectContext.AddInstigator(GetInstigator(), GetOwner());
+		EffectContext.AddHitResult(Hit);
+		const FGameplayEffectSpecHandle EffectSpec = OwningAbilitySystem->MakeOutgoingSpec(
+			DamageEffectClass,
+			1.0f,
+			EffectContext
+		);
+		OtherAbilitySystem->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data);
+	}
+	
+	Destroy();
 }
