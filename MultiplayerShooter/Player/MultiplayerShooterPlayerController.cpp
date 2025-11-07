@@ -5,6 +5,7 @@
 #include "MultiplayerShooterPlayerState.h"
 #include "AbilitySystem/MultiplayerShooterAbilitySystemComponent.h"
 #include "Camera/MultiplayerShooterPlayerCameraManager.h"
+#include "Game/MultiplayerShooterGameMode.h"
 #include "Input/MultiplayerShooterInputComponent.h"
 #include "UI/MultiplayerShooterHUD.h"
 #include "UI/MultiplayerShooterOverlayController.h"
@@ -14,6 +15,118 @@ AMultiplayerShooterPlayerController::AMultiplayerShooterPlayerController(const F
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PlayerCameraManagerClass = AMultiplayerShooterPlayerCameraManager::StaticClass();
+}
+
+void AMultiplayerShooterPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	
+	UMultiplayerShooterInputComponent* MultiplayerShooterInputComponent =
+		CastChecked<UMultiplayerShooterInputComponent>(InputComponent);
+	
+	MultiplayerShooterInputComponent->BindNativeAction(
+		InputConfig,
+		MultiplayerShooterGameplayTags::Input_Action_Move,
+		ETriggerEvent::Triggered,
+		this,
+		&ThisClass::Input_Move,
+		false
+	);
+	MultiplayerShooterInputComponent->BindNativeAction(
+		InputConfig,
+		MultiplayerShooterGameplayTags::Input_Action_Look,
+		ETriggerEvent::Triggered,
+		this,
+		&ThisClass::Input_Look,
+		false
+	);
+
+	MultiplayerShooterInputComponent->BindAbilityActions(
+		InputConfig,
+		this,
+		&ThisClass::Input_AbilityInputPressed,
+		&ThisClass::Input_AbilityInputReleased
+	);
+}
+
+void AMultiplayerShooterPlayerController::Input_Move(const FInputActionValue& InputActionValue)
+{
+	const FVector2D MovementInput = InputActionValue.Get<FVector2D>();
+	const FRotator TargetRotation(0.0f, GetControlRotation().Yaw, 0.0f);
+
+	if (APawn* ControlledPawn = GetPawn())
+	{
+		if (MovementInput.X != 0.0f)
+		{
+			const FVector RightDirection = TargetRotation.RotateVector(FVector::RightVector);
+			ControlledPawn->AddMovementInput(RightDirection, MovementInput.X);
+		}
+
+		if (MovementInput.Y != 0.0f)
+		{
+			const FVector ForwardDirection = TargetRotation.RotateVector(FVector::ForwardVector);
+			ControlledPawn->AddMovementInput(ForwardDirection, MovementInput.Y);
+		}
+	}
+}
+
+void AMultiplayerShooterPlayerController::Input_Look(const FInputActionValue& InputActionValue)
+{
+	const FVector2D LookInput = InputActionValue.Get<FVector2D>();
+
+	if (APawn* ControlledPawn = GetPawn())
+	{
+		if (LookInput.X != 0.0f)
+		{
+			ControlledPawn->AddControllerYawInput(LookInput.X);
+		}
+
+		if (LookInput.Y != 0.0f)
+		{
+			ControlledPawn->AddControllerPitchInput(LookInput.Y);
+		}
+	}
+}
+
+void AMultiplayerShooterPlayerController::Input_AbilityInputPressed(FGameplayTag InputTag)
+{
+	UMultiplayerShooterAbilitySystemComponent* AbilitySystem =
+		GetMultiplayerShooterAbilitySystemComponent();
+	if (AbilitySystem)
+	{
+		AbilitySystem->AbilityInputPressed(InputTag);
+	}
+}
+
+void AMultiplayerShooterPlayerController::Input_AbilityInputReleased(FGameplayTag InputTag)
+{
+	UMultiplayerShooterAbilitySystemComponent* AbilitySystem =
+		GetMultiplayerShooterAbilitySystemComponent();
+	if (AbilitySystem)
+	{
+		AbilitySystem->AbilityInputReleased(InputTag);
+	}
+}
+
+void AMultiplayerShooterPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (IsLocalController())
+	{
+		// Input
+		UEnhancedInputLocalPlayerSubsystem* Subsystem =
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+		Subsystem->AddMappingContext(DefaultInputMapping, 0);
+
+		// Overlay
+		AMultiplayerShooterHUD* MultiplayerShooterHUD =
+			GetHUD<AMultiplayerShooterHUD>();
+		if (IsValid(MultiplayerShooterHUD))
+		{
+			MultiplayerShooterHUD->InitOverlay();
+		}
+	}
 }
 
 void AMultiplayerShooterPlayerController::PlayerTick(float DeltaTime)
@@ -148,121 +261,21 @@ AMultiplayerShooterHUD* AMultiplayerShooterPlayerController::GetMultiplayerShoot
 	return GetHUD<AMultiplayerShooterHUD>();
 }
 
-void AMultiplayerShooterPlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-	
-	UMultiplayerShooterInputComponent* MultiplayerShooterInputComponent =
-		CastChecked<UMultiplayerShooterInputComponent>(InputComponent);
-	
-	MultiplayerShooterInputComponent->BindNativeAction(
-		InputConfig,
-		MultiplayerShooterGameplayTags::Input_Action_Move,
-		ETriggerEvent::Triggered,
-		this,
-		&ThisClass::Input_Move,
-		false
-	);
-	MultiplayerShooterInputComponent->BindNativeAction(
-		InputConfig,
-		MultiplayerShooterGameplayTags::Input_Action_Look,
-		ETriggerEvent::Triggered,
-		this,
-		&ThisClass::Input_Look,
-		false
-	);
-
-	MultiplayerShooterInputComponent->BindAbilityActions(
-		InputConfig,
-		this,
-		&ThisClass::Input_AbilityInputPressed,
-		&ThisClass::Input_AbilityInputReleased
-	);
-}
-
-void AMultiplayerShooterPlayerController::Input_Move(const FInputActionValue& InputActionValue)
-{
-	const FVector2D MovementInput = InputActionValue.Get<FVector2D>();
-	const FRotator TargetRotation(0.0f, GetControlRotation().Yaw, 0.0f);
-
-	if (APawn* ControlledPawn = GetPawn())
-	{
-		if (MovementInput.X != 0.0f)
-		{
-			const FVector RightDirection = TargetRotation.RotateVector(FVector::RightVector);
-			ControlledPawn->AddMovementInput(RightDirection, MovementInput.X);
-		}
-
-		if (MovementInput.Y != 0.0f)
-		{
-			const FVector ForwardDirection = TargetRotation.RotateVector(FVector::ForwardVector);
-			ControlledPawn->AddMovementInput(ForwardDirection, MovementInput.Y);
-		}
-	}
-}
-
-void AMultiplayerShooterPlayerController::Input_Look(const FInputActionValue& InputActionValue)
-{
-	const FVector2D LookInput = InputActionValue.Get<FVector2D>();
-
-	if (APawn* ControlledPawn = GetPawn())
-	{
-		if (LookInput.X != 0.0f)
-		{
-			ControlledPawn->AddControllerYawInput(LookInput.X);
-		}
-
-		if (LookInput.Y != 0.0f)
-		{
-			ControlledPawn->AddControllerPitchInput(LookInput.Y);
-		}
-	}
-}
-
-void AMultiplayerShooterPlayerController::Input_AbilityInputPressed(FGameplayTag InputTag)
-{
-	UMultiplayerShooterAbilitySystemComponent* AbilitySystem =
-		GetMultiplayerShooterAbilitySystemComponent();
-	if (AbilitySystem)
-	{
-		AbilitySystem->AbilityInputPressed(InputTag);
-	}
-}
-
-void AMultiplayerShooterPlayerController::Input_AbilityInputReleased(FGameplayTag InputTag)
-{
-	UMultiplayerShooterAbilitySystemComponent* AbilitySystem =
-		GetMultiplayerShooterAbilitySystemComponent();
-	if (AbilitySystem)
-	{
-		AbilitySystem->AbilityInputReleased(InputTag);
-	}
-}
-
-void AMultiplayerShooterPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (IsLocalController())
-	{
-		// Input
-		UEnhancedInputLocalPlayerSubsystem* Subsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-		Subsystem->AddMappingContext(DefaultInputMapping, 0);
-
-		// Overlay
-		AMultiplayerShooterHUD* MultiplayerShooterHUD =
-			GetHUD<AMultiplayerShooterHUD>();
-		if (IsValid(MultiplayerShooterHUD))
-		{
-			MultiplayerShooterHUD->InitOverlay();
-		}
-	}
-}
-
 UMultiplayerShooterAbilitySystemComponent* AMultiplayerShooterPlayerController::GetMultiplayerShooterAbilitySystemComponent() const
 {
 	UAbilitySystemComponent* AbilitySystem =
 		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPawn());
 	return Cast<UMultiplayerShooterAbilitySystemComponent>(AbilitySystem);
+}
+
+void AMultiplayerShooterPlayerController::OnPlayerDead()
+{
+	if (UWorld* World = GetWorld())
+	{
+		AMultiplayerShooterGameMode* GameMode = World->GetAuthGameMode<AMultiplayerShooterGameMode>();
+		if (IsValid(GameMode))
+		{
+			GameMode->EliminatePlayer(this);
+		}
+	}
 }

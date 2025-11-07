@@ -36,6 +36,11 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	AMultiplayerShooterHUD* GetMultiplayerShooterHUD() const;
+
+	UFUNCTION(BlueprintCallable)
+	void OnPlayerDead();
+
+	void RespawnPlayer(float DelaySeconds);
 	
 protected:
 	virtual void SetupInputComponent() override;

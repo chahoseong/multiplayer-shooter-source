@@ -24,8 +24,8 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	template <typename T> requires std::is_base_of_v<UAbilitySystemComponent, UMultiplayerShooterAbilitySystemComponent>
-	UMultiplayerShooterAbilitySystemComponent* GetAbilitySystemComponent() const
+	template <typename T> requires std::is_base_of_v<UAbilitySystemComponent, T>
+	T* GetAbilitySystemComponent() const
 	{
 		return Cast<T>(GetAbilitySystemComponent());
 	}
