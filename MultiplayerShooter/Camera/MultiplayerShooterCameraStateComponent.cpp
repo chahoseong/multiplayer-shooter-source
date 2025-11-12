@@ -15,25 +15,23 @@ UMultiplayerShooterCameraStateComponent::UMultiplayerShooterCameraStateComponent
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UMultiplayerShooterCameraStateComponent::BeginPlay()
+void UMultiplayerShooterCameraStateComponent::Activate(bool bReset)
 {
-	Super::BeginPlay();
-	
-	if (IsOwnerLocallyControlled())
+	Super::Activate(bReset);
+
+	if (!CameraModeStack)
 	{
-		if (!CameraModeStack)
-		{
-			CameraModeStack = NewObject<UMultiplayerShooterCameraModeStack>(this);
-			check(CameraModeStack);
-		}
-		SpringArmComponent = GetOwner()->FindComponentByClass<USpringArmComponent>();
-		CameraComponent = GetOwner()->FindComponentByClass<UCameraComponent>();
+		CameraModeStack = NewObject<UMultiplayerShooterCameraModeStack>(this);
+		check(CameraModeStack);
 	}
-	else
-	{
-		SetComponentTickEnabled(false);
-		Deactivate();
-	}
+	SpringArmComponent = GetOwner()->FindComponentByClass<USpringArmComponent>();
+	CameraComponent = GetOwner()->FindComponentByClass<UCameraComponent>();
+}
+
+void UMultiplayerShooterCameraStateComponent::Deactivate()
+{
+	SetComponentTickEnabled(false);
+	Super::Deactivate();
 }
 
 bool UMultiplayerShooterCameraStateComponent::IsOwnerLocallyControlled() const

@@ -1,11 +1,12 @@
 ﻿#include "Character/MultiplayerShooterCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "MultiplayerShooterCharacterMovementComponent.h"
+#include "MultiplayerShooterHealthComponent.h"
 #include "Abilities/GameplayAbility.h"
 #include "AbilitySystem/MultiplayerShooterAbilitySet.h"
 #include "Components/CapsuleComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Physics/MultiplayerShooterCollisionChannels.h"
-#include "Player/MultiplayerShooterPlayerState.h"
 
 AMultiplayerShooterCharacter::AMultiplayerShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UMultiplayerShooterCharacterMovementComponent>(CharacterMovementComponentName))
@@ -16,6 +17,8 @@ AMultiplayerShooterCharacter::AMultiplayerShooterCharacter(const FObjectInitiali
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
+
+	HealthComponent = CreateDefaultSubobject<UMultiplayerShooterHealthComponent>(TEXT("HealthComponent"));
 
 	// Collision
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
@@ -45,17 +48,21 @@ AMultiplayerShooterCharacter::AMultiplayerShooterCharacter(const FObjectInitiali
 	MultiplayerShooterCharacterMovement->SetCrouchedHalfHeight(65.0f);
 }
 
+void AMultiplayerShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, MyTeam);
+}
+
 void AMultiplayerShooterCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
 	InitializeAbilitySystem();
-
-	if (IsValid(InitialAbilitySet))
-	{
-		FMultiplayerShooterAbilitySet_GrantedHandles GrantedHandles;
-		InitialAbilitySet->GiveToAbilitySystem(GrantedHandles, AbilitySystemComponent);
-	}
+	
+	ApplyEffectToSelf(InitialMaxHealthAttribute);
+	ApplyEffectToSelf(InitialHealthAttribute);
 }
 
 void AMultiplayerShooterCharacter::OnRep_PlayerState()
@@ -92,9 +99,7 @@ void AMultiplayerShooterCharacter::SetGenericTeamId(const FGenericTeamId& TeamID
 	{
 		if (HasAuthority())
 		{
-			AMultiplayerShooterPlayerState* MultiplayerShooterPlayerState =
-				GetPlayerState<AMultiplayerShooterPlayerState>();
-			MultiplayerShooterPlayerState->SetGenericTeamId(TeamID);
+			MyTeam = TeamID;
 		}
 		else
 		{
@@ -109,11 +114,5 @@ void AMultiplayerShooterCharacter::SetGenericTeamId(const FGenericTeamId& TeamID
 
 FGenericTeamId AMultiplayerShooterCharacter::GetGenericTeamId() const
 {
-	const AMultiplayerShooterPlayerState* MultiplayerShooterPlayerState =
-		GetPlayerState<AMultiplayerShooterPlayerState>();
-	if (MultiplayerShooterPlayerState)
-	{
-		return MultiplayerShooterPlayerState->GetGenericTeamId();
-	}
-	return FGenericTeamId::NoTeam;
+	return MyTeam;
 }

@@ -4,8 +4,10 @@
 #include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerState.h"
 #include "GenericTeamAgentInterface.h"
+#include "AbilitySystem/MultiplayerShooterAbilitySet.h"
 #include "MultiplayerShooterPlayerState.generated.h"
 
+class UMultiplayerShooterAbilitySet;
 class UMultiplayerShooterCombatSet;
 class UMultiplayerShooterHealthSet;
 class UMultiplayerShooterAbilitySystemComponent;
@@ -31,9 +33,13 @@ public:
 	}
 	
 	UMultiplayerShooterHealthSet* GetHealthSet() const;
-
+	UMultiplayerShooterCombatSet* GetCombatSet() const;
+	
 	virtual void SetGenericTeamId(const FGenericTeamId& TeamId) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
+
+	bool HasStartupAbilities() const;
+	void GiveStartupAbilities(const UMultiplayerShooterAbilitySet* AbilitySet);
 
 private:
 	UFUNCTION()
@@ -51,4 +57,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_MyTeamId)
 	FGenericTeamId MyTeamId;
+
+private:
+	FMultiplayerShooterAbilitySet_GrantedHandles GrantedHandles;
 };

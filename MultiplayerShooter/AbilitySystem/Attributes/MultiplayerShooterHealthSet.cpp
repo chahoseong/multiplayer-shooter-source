@@ -38,6 +38,19 @@ void UMultiplayerShooterHealthSet::PostAttributeChange(const FGameplayAttribute&
 	}
 }
 
+bool UMultiplayerShooterHealthSet::PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)
+{
+	if (!Super::PreGameplayEffectExecute(Data))
+	{
+		return false;
+	}
+
+	HealthBeforeAttributeChange = GetHealth();
+	MaxHealthBeforeAttributeChange = GetMaxHealth();
+	
+	return true;
+}
+
 void UMultiplayerShooterHealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
@@ -50,11 +63,11 @@ void UMultiplayerShooterHealthSet::PostGameplayEffectExecute(const FGameplayEffe
 	{
 		const float IncomingDamage = GetDamage();
 		SetDamage(0.0f);
-		
+
 		const float NewHealth = GetHealth() - IncomingDamage;
 		SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
 		
-		if (IncomingDamage > 0.0f)
+		if (IncomingDamage > 0.0f && !bOutOfHealth)
 		{
 			UAbilitySystemComponent* AbilitySystem = GetOwningAbilitySystemComponentChecked();
 			FGameplayEventData Payload = MakeGameplayEventData(Data.EffectSpec, IncomingDamage);
@@ -70,7 +83,7 @@ void UMultiplayerShooterHealthSet::PostGameplayEffectExecute(const FGameplayEffe
 			AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
 		}
 	}
-
+	
 	bOutOfHealth = GetHealth() <= 0.0f;
 }
 

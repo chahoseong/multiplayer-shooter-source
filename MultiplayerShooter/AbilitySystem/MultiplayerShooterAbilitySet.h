@@ -49,6 +49,7 @@ struct FMultiplayerShooterAbilitySet_GrantedHandles
 	TArray<FActiveGameplayEffectHandle> GameplayEffectHandles;
 
 	void TakeFromAbilitySystem(UAbilitySystemComponent* AbilitySystem);
+	bool IsEmpty() const;
 };
 
 UCLASS()

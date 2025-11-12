@@ -1,6 +1,6 @@
 ﻿#include "Character/MultiplayerShooterPlayerCharacter.h"
 #include "AbilitySystemComponent.h"
-#include "MultiplayerShooterGameplayTags.h"
+#include "MultiplayerShooterHealthComponent.h"
 #include "Animation/MultiplayerShooterAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/MultiplayerShooterCameraMode.h"
@@ -8,7 +8,6 @@
 #include "Equipment/MultiplayerShooterEquipmentManagerComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/MultiplayerShooterPlayerState.h"
-#include "UI/MultiplayerShooterHUD.h"
 
 AMultiplayerShooterPlayerCharacter::AMultiplayerShooterPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -28,16 +27,6 @@ AMultiplayerShooterPlayerCharacter::AMultiplayerShooterPlayerCharacter(const FOb
 void AMultiplayerShooterPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	
-	for (TSubclassOf EquipmentDefinition : StartupEquipments)
-	{
-		EquipmentManagerComponent->Equip(EquipmentDefinition);
-	}
-}
-
-void AMultiplayerShooterPlayerCharacter::BeginPlay()
-{
-	Super::BeginPlay();
 
 	if (IsLocallyControlled())
 	{
@@ -45,6 +34,16 @@ void AMultiplayerShooterPlayerCharacter::BeginPlay()
 			this,
 			&ThisClass::DetermineCameraMode
 		);
+		CameraStateComponent->Activate(true);
+	}
+	else
+	{
+		CameraStateComponent->Deactivate();
+	}
+	
+	for (TSubclassOf EquipmentDefinition : StartupEquipments)
+	{
+		EquipmentManagerComponent->Equip(EquipmentDefinition);
 	}
 }
 
@@ -68,7 +67,6 @@ TSubclassOf<UMultiplayerShooterCameraMode> AMultiplayerShooterPlayerCharacter::D
 	{
 		return CurrentAbilityCameraMode;
 	}
-	
 	return DefaultCameraMode;
 }
 
@@ -80,7 +78,6 @@ void AMultiplayerShooterPlayerCharacter::SetAbilityCameraMode(TSubclassOf<UMulti
 		CurrentAbilityCameraMode = CameraMode;
 		AbilityCameraModeSource = OwningAbilitySpec;
 	}
-
 }
 
 void AMultiplayerShooterPlayerCharacter::ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningAbilitySpec)
@@ -89,6 +86,24 @@ void AMultiplayerShooterPlayerCharacter::ClearAbilityCameraMode(const FGameplayA
 	{
 		CurrentAbilityCameraMode = nullptr;
 		AbilityCameraModeSource = FGameplayAbilitySpecHandle();
+	}
+}
+
+void AMultiplayerShooterPlayerCharacter::OnRep_Controller()
+{
+	Super::OnRep_Controller();
+
+	if (IsLocallyControlled())
+	{
+		CameraStateComponent->DetermineCameraModeDelegate.BindUObject(
+			this,
+			&ThisClass::DetermineCameraMode
+		);
+		CameraStateComponent->Activate(true);
+	}
+	else
+	{
+		CameraStateComponent->Deactivate();
 	}
 }
 
@@ -103,6 +118,7 @@ void AMultiplayerShooterPlayerCharacter::InitializeAbilitySystem()
 
 	// Attribute Sets
 	HealthSet = MultiplayerShooterPlayerState->GetHealthSet();
+	CombatSet = MultiplayerShooterPlayerState->GetCombatSet();
 
 	// Animation
 	UMultiplayerShooterAnimInstance* MultiplayerShooterAnimInstance =
@@ -110,5 +126,17 @@ void AMultiplayerShooterPlayerCharacter::InitializeAbilitySystem()
 	if (IsValid(MultiplayerShooterAnimInstance))
 	{
 		MultiplayerShooterAnimInstance->InitializeWithAbilitySystem(AbilitySystemComponent);
+	}
+
+	// Health
+	if (HealthComponent)
+	{
+		HealthComponent->InitializeWithAbilitySystem(AbilitySystemComponent);
+	}
+
+	// Ability Set
+	if (!MultiplayerShooterPlayerState->HasStartupAbilities())
+	{
+		MultiplayerShooterPlayerState->GiveStartupAbilities(StartupAbilitySet);
 	}
 }

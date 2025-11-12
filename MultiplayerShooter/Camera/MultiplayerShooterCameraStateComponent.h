@@ -23,14 +23,15 @@ public:
 	
 public:
 	UMultiplayerShooterCameraStateComponent();
+
+	virtual void Activate(bool bReset) override;
+	virtual void Deactivate() override;
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	FMultiplayerShooterCameraModeDelegate DetermineCameraModeDelegate;
 	
 protected:
-	virtual void BeginPlay() override;
-
 	void UpdateCameraModes() const;
 
 private:

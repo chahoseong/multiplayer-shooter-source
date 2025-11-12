@@ -37,6 +37,11 @@ UMultiplayerShooterHealthSet* AMultiplayerShooterPlayerState::GetHealthSet() con
 	return HealthSet;
 }
 
+UMultiplayerShooterCombatSet* AMultiplayerShooterPlayerState::GetCombatSet() const
+{
+	return CombatSet;
+}
+
 void AMultiplayerShooterPlayerState::SetGenericTeamId(const FGenericTeamId& TeamId)
 {
 	if (HasAuthority())
@@ -60,6 +65,18 @@ FGenericTeamId AMultiplayerShooterPlayerState::GetGenericTeamId() const
 	return MyTeamId;
 }
 
+bool AMultiplayerShooterPlayerState::HasStartupAbilities() const
+{
+	return !GrantedHandles.IsEmpty();
+}
+
+void AMultiplayerShooterPlayerState::GiveStartupAbilities(const UMultiplayerShooterAbilitySet* AbilitySet)
+{
+	check(AbilitySet);
+	AbilitySet->GiveToAbilitySystem(GrantedHandles, AbilitySystemComponent, this);
+}
+
 void AMultiplayerShooterPlayerState::OnRep_MyTeamId(FGenericTeamId OldTeamId)
 {
+
 }

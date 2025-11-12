@@ -10,6 +10,10 @@
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+struct FGameplayEffectSpec;
+
+DECLARE_MULTICAST_DELEGATE_FourParams(FMultiplayerShooterAttributeChanged, const FGameplayEffectSpec*, float /* Magnitude */, float /* OldValue */, float /* New Value */);
+
 UCLASS()
 class MULTIPLAYERSHOOTER_API UMultiplayerShooterAttributeSet : public UAttributeSet
 {

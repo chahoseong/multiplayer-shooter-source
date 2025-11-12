@@ -5,6 +5,7 @@
 #include "MultiplayerShooterPlayerState.h"
 #include "AbilitySystem/MultiplayerShooterAbilitySystemComponent.h"
 #include "Camera/MultiplayerShooterPlayerCameraManager.h"
+#include "Character/MultiplayerShooterPlayerCharacter.h"
 #include "Game/MultiplayerShooterGameMode.h"
 #include "Input/MultiplayerShooterInputComponent.h"
 #include "UI/MultiplayerShooterHUD.h"
@@ -15,6 +16,17 @@ AMultiplayerShooterPlayerController::AMultiplayerShooterPlayerController(const F
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PlayerCameraManagerClass = AMultiplayerShooterPlayerCameraManager::StaticClass();
+}
+
+void AMultiplayerShooterPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	const AMultiplayerShooterPlayerState* MultiplayerShooterPlayerState =
+		GetPlayerState<AMultiplayerShooterPlayerState>();
+	AMultiplayerShooterPlayerCharacter* PlayerCharacter =
+		Cast<AMultiplayerShooterPlayerCharacter>(InPawn);
+	PlayerCharacter->SetGenericTeamId(MultiplayerShooterPlayerState->GetGenericTeamId());
 }
 
 void AMultiplayerShooterPlayerController::SetupInputComponent()
@@ -278,4 +290,9 @@ void AMultiplayerShooterPlayerController::OnPlayerDead()
 			GameMode->EliminatePlayer(this);
 		}
 	}
+}
+
+void AMultiplayerShooterPlayerController::OnPlayerRespawned()
+{
+	
 }

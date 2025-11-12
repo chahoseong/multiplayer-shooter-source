@@ -31,6 +31,11 @@ void FMultiplayerShooterAbilitySet_GrantedHandles::TakeFromAbilitySystem(UAbilit
 	GameplayEffectHandles.Reset();
 }
 
+bool FMultiplayerShooterAbilitySet_GrantedHandles::IsEmpty() const
+{
+	return AbilitySpecHandles.Num() == 0 && GameplayEffectHandles.Num() == 0;
+}
+
 UMultiplayerShooterAbilitySet::UMultiplayerShooterAbilitySet(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {

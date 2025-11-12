@@ -1,5 +1,6 @@
 ﻿#include "UI/MultiplayerShooterOverlayController.h"
 #include "AbilitySystem/Attributes/MultiplayerShooterHealthSet.h"
+#include "Character/MultiplayerShooterHealthComponent.h"
 #include "Player/MultiplayerShooterPlayerState.h"
 #include "UI/MultiplayerShooterHUD.h"
 #include "UI/MultiplayerShooterUserWidget.h"
@@ -24,7 +25,7 @@ void UMultiplayerShooterOverlayController::Initialize(APlayerController* NewPlay
 	{
 		return;
 	}
-
+	
 	if (UAbilitySystemComponent* AbilitySystem = PlayerState->GetAbilitySystemComponent())
 	{
 		// Health

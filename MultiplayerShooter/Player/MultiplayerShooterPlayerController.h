@@ -20,6 +20,8 @@ class MULTIPLAYERSHOOTER_API AMultiplayerShooterPlayerController : public APlaye
 
 public:
 	AMultiplayerShooterPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual void OnPossess(APawn* InPawn) override;
 	
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
@@ -37,10 +39,10 @@ public:
 	UFUNCTION(BlueprintPure)
 	AMultiplayerShooterHUD* GetMultiplayerShooterHUD() const;
 
+	void OnPlayerRespawned();
+
 	UFUNCTION(BlueprintCallable)
 	void OnPlayerDead();
-
-	void RespawnPlayer(float DelaySeconds);
 	
 protected:
 	virtual void SetupInputComponent() override;

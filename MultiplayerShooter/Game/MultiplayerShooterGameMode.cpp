@@ -1,6 +1,7 @@
 ﻿#include "Game/MultiplayerShooterGameMode.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/MultiplayerShooterPlayerController.h"
 #include "Player/MultiplayerShooterPlayerState.h"
 
 AMultiplayerShooterGameMode::AMultiplayerShooterGameMode(const FObjectInitializer& ObjectInitializer)
@@ -66,4 +67,8 @@ void AMultiplayerShooterGameMode::RespawnPlayer(APlayerController* PlayerControl
 	);
 	const int32 Selection = FMath::RandRange(0, PlayerStarts.Num() - 1);
 	RestartPlayerAtPlayerStart(PlayerController, PlayerStarts[Selection]);
+	
+	AMultiplayerShooterPlayerController* MultiplayerShooterPlayerController =
+		CastChecked<AMultiplayerShooterPlayerController>(PlayerController);
+	MultiplayerShooterPlayerController->OnPlayerRespawned();
 }

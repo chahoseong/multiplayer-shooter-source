@@ -9,22 +9,49 @@ struct FOnAttributeChangeData;
 class UMultiplayerShooterHealthSet;
 class UAbilitySystemComponent;
 
+UENUM(BlueprintType)
+enum class EMultiplayerShooterDeathState : uint8
+{
+	NotDead,
+	DeathStarted,
+	DeathFinished,
+};
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class MULTIPLAYERSHOOTER_API UMultiplayerShooterHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
+	static UMultiplayerShooterHealthComponent* FindHealthComponent(const AActor* Actor);
+	
+public:
 	UMultiplayerShooterHealthComponent();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void InitializeWithAbilitySystem(UAbilitySystemComponent* AbilitySystem);
 	void ReleaseFromAbilitySystem(UAbilitySystemComponent* AbilitySystem);
 
+	virtual void StartDeath();
+	virtual void FinishDeath();
+	
+	UFUNCTION(BlueprintPure)
+	float GetHealth() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetMaxHealth() const;
+
+	EMultiplayerShooterDeathState GetDeathState() const;
+
 protected:
-	void OnHealthChanged(const FOnAttributeChangeData& Data);
-	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
+	UFUNCTION()
+	void OnRep_DeathState(EMultiplayerShooterDeathState OldDeathState);
 	
 protected:
 	UPROPERTY()
-	TObjectPtr<UMultiplayerShooterHealthSet> HealthSet;
+	TObjectPtr<const UMultiplayerShooterHealthSet> HealthSet;
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_DeathState)
+	EMultiplayerShooterDeathState DeathState;
 };

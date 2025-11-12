@@ -21,13 +21,14 @@ public:
 	AMultiplayerShooterPlayerCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	
 	virtual void PossessedBy(AController* NewController) override;
-	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	
 	void SetAbilityCameraMode(TSubclassOf<UMultiplayerShooterCameraMode> CameraMode,
 		const FGameplayAbilitySpecHandle& OwningAbilitySpec);
 	void ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningAbilitySpec);
-
+	
+	virtual void OnRep_Controller() override;
+	
 protected:
 	virtual void InitializeAbilitySystem() override;
 	
