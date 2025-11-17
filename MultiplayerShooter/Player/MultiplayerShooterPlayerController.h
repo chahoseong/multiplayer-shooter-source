@@ -42,7 +42,7 @@ public:
 	void OnPlayerRespawned();
 
 	UFUNCTION(BlueprintCallable)
-	void OnPlayerDead();
+	void OnPlayerDead(const AActor* Attacker);
 	
 protected:
 	virtual void SetupInputComponent() override;

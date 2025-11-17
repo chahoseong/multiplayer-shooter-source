@@ -4,6 +4,8 @@
 #include "AbilitySystemComponent.h"
 #include "MultiplayerShooterHealthSet.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FMultiplayerShooterOutOfHealthEvent, const FGameplayEffectSpec*);
+
 UCLASS()
 class MULTIPLAYERSHOOTER_API UMultiplayerShooterHealthSet : public UMultiplayerShooterAttributeSet
 {
@@ -15,7 +17,9 @@ public:
 	ATTRIBUTE_ACCESSORS(UMultiplayerShooterHealthSet, Health);
 	ATTRIBUTE_ACCESSORS(UMultiplayerShooterHealthSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UMultiplayerShooterHealthSet, Damage);
-
+	
+	mutable FMultiplayerShooterOutOfHealthEvent OnOutOfHealth;
+	
 protected:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
@@ -30,7 +34,6 @@ protected:
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
 
 private:
-	FGameplayEventData MakeGameplayEventData(const FGameplayEffectSpec& EffectSpec, float Magnitude) const;
 	float ClampAttribute(const FGameplayAttribute& Attribute, float NewValue) const;
 	
 protected:

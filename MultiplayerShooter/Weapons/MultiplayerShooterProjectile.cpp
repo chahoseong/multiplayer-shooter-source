@@ -49,7 +49,7 @@ void AMultiplayerShooterProjectile::OnHit(UPrimitiveComponent* HitComponent, AAc
 		const UAbilitySystemComponent* OwningAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetInstigator());
 		FGameplayEffectContextHandle EffectContext = OwningAbilitySystem->MakeEffectContext();
 		EffectContext.AddSourceObject(this);
-		EffectContext.AddInstigator(GetInstigator(), GetOwner());
+		EffectContext.AddInstigator(GetInstigator(), OwningAbilitySystem->GetOwnerActor());
 		EffectContext.AddHitResult(Hit);
 		const FGameplayEffectSpecHandle EffectSpec = OwningAbilitySystem->MakeOutgoingSpec(
 			DamageEffectClass,

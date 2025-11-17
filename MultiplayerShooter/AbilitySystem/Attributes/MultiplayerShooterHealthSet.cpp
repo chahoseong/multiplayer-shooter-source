@@ -1,6 +1,9 @@
 ﻿#include "AbilitySystem/Attributes/MultiplayerShooterHealthSet.h"
 #include "GameplayEffectExtension.h"
 #include "MultiplayerShooterGameplayTags.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "Kismet/GameplayStatics.h"
+#include "Messages/MultiplayerShooterVerbMessage.h"
 #include "Net/UnrealNetwork.h"
 
 void UMultiplayerShooterHealthSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -59,46 +62,39 @@ void UMultiplayerShooterHealthSet::PostGameplayEffectExecute(const FGameplayEffe
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 	}
+	else if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
+	{
+		SetMaxHealth(FMath::Max(GetMaxHealth(), 1.0f));
+	}
 	else if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
 		const float IncomingDamage = GetDamage();
 		SetDamage(0.0f);
-
+		
 		const float NewHealth = GetHealth() - IncomingDamage;
 		SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
 		
-		if (IncomingDamage > 0.0f && !bOutOfHealth)
+		FGameplayEventData Payload;
+		Payload.EventTag = GetHealth() > 0 
+			? MultiplayerShooterGameplayTags::GameplayEvent_Damaged
+			: MultiplayerShooterGameplayTags::GameplayEvent_Dead;
+		Payload.EventMagnitude = Data.EvaluatedData.Magnitude;
+		Payload.Instigator = Data.EffectSpec.GetEffectContext().GetOriginalInstigator();
+		Payload.InstigatorTags = *Data.EffectSpec.CapturedSourceTags.GetAggregatedTags();
+		Payload.Target = GetOwningAbilitySystemComponent()->GetAvatarActor();
+		Payload.TargetTags = *Data.EffectSpec.CapturedTargetTags.GetAggregatedTags();
+		Payload.ContextHandle = Data.EffectSpec.GetContext();
+		Payload.OptionalObject = Data.EffectSpec.Def;
+		FScopedPredictionWindow PredictionWindow(GetOwningAbilitySystemComponent(), true);
+		GetOwningAbilitySystemComponent()->HandleGameplayEvent(Payload.EventTag, &Payload);
+		
+		if (GetHealth() <= 0.0f && !bOutOfHealth)
 		{
-			UAbilitySystemComponent* AbilitySystem = GetOwningAbilitySystemComponentChecked();
-			FGameplayEventData Payload = MakeGameplayEventData(Data.EffectSpec, IncomingDamage);
-			if (GetHealth() > 0.0f)
-			{
-				Payload.EventTag = MultiplayerShooterGameplayTags::GameplayEvent_Damaged;
-			}
-			else
-			{
-				Payload.EventTag = MultiplayerShooterGameplayTags::GameplayEvent_Dead;
-			}
-			FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
-			AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
+			OnOutOfHealth.Broadcast(&Data.EffectSpec);
 		}
 	}
 	
 	bOutOfHealth = GetHealth() <= 0.0f;
-}
-
-FGameplayEventData UMultiplayerShooterHealthSet::MakeGameplayEventData(
-	const FGameplayEffectSpec& EffectSpec, float Magnitude) const
-{
-	FGameplayEventData Payload;
-	Payload.Instigator = EffectSpec.GetEffectContext().GetInstigator();
-	Payload.Target = GetOwningAbilitySystemComponent()->GetAvatarActor();
-	Payload.OptionalObject = EffectSpec.Def;
-	Payload.ContextHandle = EffectSpec.GetContext();
-	Payload.InstigatorTags = *EffectSpec.CapturedSourceTags.GetAggregatedTags();
-	Payload.TargetTags = *EffectSpec.CapturedTargetTags.GetAggregatedTags();
-	Payload.EventMagnitude = Magnitude;
-	return Payload;
 }
 
 void UMultiplayerShooterHealthSet::OnRep_Health(const FGameplayAttributeData& OldHealth)

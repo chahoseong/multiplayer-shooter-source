@@ -45,6 +45,8 @@ public:
 	EMultiplayerShooterDeathState GetDeathState() const;
 
 protected:
+	void OnOutOfHealth(const FGameplayEffectSpec* OutOfHealthEffectSpec);
+	
 	UFUNCTION()
 	void OnRep_DeathState(EMultiplayerShooterDeathState OldDeathState);
 	

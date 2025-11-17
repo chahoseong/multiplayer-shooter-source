@@ -32,18 +32,19 @@ public:
 	void UpdateCrosshairSpread(float BaseSpreadAngle, float SpreadAngleMultiplier);
 	
 	void SetTarget(const AActor* NewTarget, ETeamAttitude::Type Attitude) const;
+
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChanged OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChanged OnMaxHealthChanged;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCrosshairSpread OnCrosshairSpread;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnTargetChanged OnTargetChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChanged OnHealthChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChanged OnMaxHealthChanged;
 
 protected:
 	UPROPERTY(Transient)

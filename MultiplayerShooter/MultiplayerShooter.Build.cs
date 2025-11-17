@@ -27,7 +27,8 @@ public class MultiplayerShooter : ModuleRules
 			"InputCore",
 			"EnhancedInput",
 			"NetCore",
-			"UMG"
+			"UMG",
+			"GameplayMessageRuntime"
 		]);
 
 		// Uncomment if you are using Slate UI

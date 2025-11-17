@@ -65,6 +65,16 @@ void AMultiplayerShooterCharacter::PossessedBy(AController* NewController)
 	ApplyEffectToSelf(InitialHealthAttribute);
 }
 
+void AMultiplayerShooterCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (HealthComponent)
+	{
+		HealthComponent->ReleaseFromAbilitySystem(AbilitySystemComponent);
+	}
+	
+	Super::EndPlay(EndPlayReason);
+}
+
 void AMultiplayerShooterCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();

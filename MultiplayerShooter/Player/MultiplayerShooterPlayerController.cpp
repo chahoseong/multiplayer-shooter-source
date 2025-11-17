@@ -280,7 +280,7 @@ UMultiplayerShooterAbilitySystemComponent* AMultiplayerShooterPlayerController::
 	return Cast<UMultiplayerShooterAbilitySystemComponent>(AbilitySystem);
 }
 
-void AMultiplayerShooterPlayerController::OnPlayerDead()
+void AMultiplayerShooterPlayerController::OnPlayerDead(const AActor* Attacker)
 {
 	if (UWorld* World = GetWorld())
 	{

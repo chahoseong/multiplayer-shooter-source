@@ -1,8 +1,13 @@
 ﻿#include "Character/MultiplayerShooterHealthComponent.h"
+
+#include "AbilitySystemGlobals.h"
 #include "AbilitySystem/Attributes/MultiplayerShooterHealthSet.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "Messages/MultiplayerShooterVerbMessage.h"
+#include "MultiplayerShooterGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
 UMultiplayerShooterHealthComponent* UMultiplayerShooterHealthComponent::FindHealthComponent(const AActor* Actor)
@@ -14,6 +19,8 @@ UMultiplayerShooterHealthComponent::UMultiplayerShooterHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
+	
+	SetIsReplicatedByDefault(true);
 }
 
 void UMultiplayerShooterHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -26,11 +33,27 @@ void UMultiplayerShooterHealthComponent::GetLifetimeReplicatedProps(TArray<FLife
 void UMultiplayerShooterHealthComponent::InitializeWithAbilitySystem(UAbilitySystemComponent* AbilitySystem)
 {
 	HealthSet = AbilitySystem->GetSet<UMultiplayerShooterHealthSet>();
+	HealthSet->OnOutOfHealth.AddUObject(this, &ThisClass::OnOutOfHealth);
+}
+
+void UMultiplayerShooterHealthComponent::OnOutOfHealth(const FGameplayEffectSpec* DamageEffectSpec)
+{
+#if WITH_SERVER_CODE
+	UE_LOG(LogTemp, Warning, TEXT("[%s] Player Out of Health"), (GetOwner()->HasAuthority() ? TEXT("Server") : TEXT("Client")));
+	FMultiplayerShooterVerbMessage Message;
+	Message.Verb = MultiplayerShooterGameplayTags::Event_Player_Dead;
+	Message.Instigator = DamageEffectSpec->GetEffectContext().GetEffectCauser();
+	Message.InstigatorTags = *DamageEffectSpec->CapturedSourceTags.GetAggregatedTags();
+	Message.Target = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwner())->GetOwnerActor();
+	Message.TargetTags = *DamageEffectSpec->CapturedTargetTags.GetAggregatedTags();
+	UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(GetWorld());
+	MessageSystem.BroadcastMessage(Message.Verb, Message);
+#endif
 }
 
 void UMultiplayerShooterHealthComponent::ReleaseFromAbilitySystem(UAbilitySystemComponent* AbilitySystem)
 {
-	
+	HealthSet->OnOutOfHealth.RemoveAll(this);
 }
 
 void UMultiplayerShooterHealthComponent::StartDeath()

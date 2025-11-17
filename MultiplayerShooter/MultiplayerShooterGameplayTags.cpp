@@ -8,6 +8,9 @@ namespace MultiplayerShooterGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Look, "Input.Action.Look")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Aim, "Input.Action.Aim")
 
+	UE_DEFINE_GAMEPLAY_TAG(Event_Player_Dead, "Event.Player.Dead")
+	UE_DEFINE_GAMEPLAY_TAG(Event_Player_Elimination, "Event.Player.Elimination")
+	
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Damaged, "GameplayEvent.Damaged")
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Dead, "GameplayEvent.Dead")
 
