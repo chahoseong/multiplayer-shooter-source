@@ -6,6 +6,7 @@
 #include "Input/DustInputComponent.h"
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
+#include "Equipment/DustEquipmentManagerComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/DustPlayerState.h"
 
@@ -22,6 +23,8 @@ ADustPlayerCharacter::ADustPlayerCharacter(const FObjectInitializer& ObjectIniti
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+	
+	EquipmentManagerComponent = CreateDefaultSubobject<UDustEquipmentManagerComponent>(TEXT("EquipmentManager"));
 }
 
 void ADustPlayerCharacter::PossessedBy(AController* NewController)
@@ -82,12 +85,14 @@ void ADustPlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)
 	const FVector2D MovementInput = InputActionValue.Get<FVector2D>();
 	const FRotator ControlRotation(0.0f, GetControlRotation().Yaw, 0.0f);
 	
+	// Forward
 	if (MovementInput.Y != 0.0f)
 	{
 		const FVector ForwardDirection = ControlRotation.RotateVector(FVector::ForwardVector);
 		AddMovementInput(ForwardDirection, MovementInput.Y);
 	}
 	
+	// Right
 	if (MovementInput.X != 0.0f)
 	{
 		const FVector RightDirection = ControlRotation.RotateVector(FVector::RightVector);

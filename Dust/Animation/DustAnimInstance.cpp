@@ -1,7 +1,5 @@
 ﻿#include "Animation/DustAnimInstance.h"
 #include "AbilitySystemGlobals.h"
-#include "Expected.h"
-#include "GameFramework/Character.h"
 #include "Misc/DataValidation.h"
 
 UDustAnimInstance::UDustAnimInstance(const FObjectInitializer& ObjectInitializer)
@@ -9,21 +7,23 @@ UDustAnimInstance::UDustAnimInstance(const FObjectInitializer& ObjectInitializer
 {
 }
 
+void UDustAnimInstance::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+	
+	UAbilitySystemComponent* AbilitySystem = 
+		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwningActor());
+	if (AbilitySystem)
+	{
+		InitializeWithAbilitySystem(AbilitySystem);
+	}
+}
+
 void UDustAnimInstance::InitializeWithAbilitySystem(UAbilitySystemComponent* AbilitySystem)
 {
 	check(AbilitySystem);
 	
 	GameplayTagPropertyMap.Initialize(this, AbilitySystem);
-}
-
-void UDustAnimInstance::NativeInitializeAnimation()
-{
-	Super::NativeInitializeAnimation();
-	
-	Expect(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwningActor()))
-	.AndThen([this](UAbilitySystemComponent* AbilitySystemComponent){
-		InitializeWithAbilitySystem(AbilitySystemComponent);
-	});
 }
 
 void UDustAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -48,4 +48,15 @@ EDataValidationResult UDustAnimInstance::IsDataValid(FDataValidationContext& Con
 }
 #endif
 
-
+void UDustAnimInstance::SetLeftHandEffectorLocation(const FVector& WorldLocation)
+{
+	FVector BoneLocation;
+	FRotator BoneRotation;
+	GetSkelMeshComponent()->TransformToBoneSpace(
+		LeftHandIK, 
+		WorldLocation, FRotator::ZeroRotator,
+		BoneLocation, BoneRotation
+	);
+	
+	LeftHandEffectorLocation = BoneLocation;
+}

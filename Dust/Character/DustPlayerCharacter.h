@@ -4,6 +4,7 @@
 #include "AbilitySystemInterface.h"
 #include "DustPlayerCharacter.generated.h"
 
+class UDustEquipmentManagerComponent;
 class UAbilitySystemComponent;
 class UCameraComponent;
 class USpringArmComponent;
@@ -51,4 +52,7 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	
+	UPROPERTY(VisibleAnywhere, Category="Equipment")
+	TObjectPtr<UDustEquipmentManagerComponent> EquipmentManagerComponent;
 };

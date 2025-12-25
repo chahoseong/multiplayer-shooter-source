@@ -1,6 +1,7 @@
 ﻿#include "DustLogChannels.h"
 
-DEFINE_LOG_CATEGORY(LogDust);
+DEFINE_LOG_CATEGORY(LogDust)
+DEFINE_LOG_CATEGORY(LogDustAbilitySystem)
 
 FString GetClientServerContextString(UObject* ContextObject)
 {

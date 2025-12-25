@@ -16,6 +16,8 @@ public:
 	
 	virtual void InitializeWithAbilitySystem(UAbilitySystemComponent* AbilitySystem);
 	
+	void SetLeftHandEffectorLocation(const FVector& WorldLocation);
+	
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
@@ -30,4 +32,10 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category="Character State Data")
 	float GroundDistance = -1.0f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="IK", meta=(BoneName))
+	FName LeftHandIK;
+	
+	UPROPERTY(BlueprintReadOnly, Transient, Category="IK")
+	FVector LeftHandEffectorLocation;
 };

@@ -18,12 +18,13 @@ public class Dust : ModuleRules
 			"Engine",
 			"GameplayTags",
 			"GameplayAbilities",
-			"GameplayTasks"
+			"GameplayTasks",
 		]);
 
 		PrivateDependencyModuleNames.AddRange([
 			"InputCore",
 			"EnhancedInput",
+			"NetCore",
 		]);
 
 		// Uncomment if you are using Slate UI

@@ -1043,7 +1043,7 @@ public:
 		else
 		{
 			auto Result = Invoke(Forward<F>(Func), *Value);
-			return ReturnType(Inplace, MoveTemp(Result));
+			return TExpected<ReturnType, void>(Inplace, MoveTemp(Result));
 		}
 	}
 	
@@ -1063,7 +1063,7 @@ public:
 		else
 		{
 			auto Result = Invoke(Forward<F>(Func), *Value);
-			return ReturnType(Inplace, MoveTemp(Result));
+			return TExpected<ReturnType, void>(Inplace, MoveTemp(Result));
 		}
 	}
 	
@@ -1083,7 +1083,7 @@ public:
 		else
 		{
 			auto Result = Invoke(Forward<F>(Func), MoveTemp(*Value));
-			return ReturnType(Inplace, MoveTemp(Result));
+			return TExpected<ReturnType, void>(Inplace, MoveTemp(Result));
 		}
 	}
 	
@@ -1103,7 +1103,7 @@ public:
 		else
 		{
 			auto Result = Invoke(Forward<F>(Func), MoveTemp(*Value));
-			return ReturnType(Inplace, MoveTemp(Result));
+			return TExpected<ReturnType, void>(Inplace, MoveTemp(Result));
 		}
 	}
 	
@@ -1227,12 +1227,12 @@ public:
 		}
 	}
 	
-	constexpr void SetValue(const T& NewValue)
+	constexpr void SetValue(const T& NewValue) &
 	{
 		Value = NewValue;
 	}
 	
-	constexpr void SetValue(T&& NewValue)
+	constexpr void SetValue(T&& NewValue) &&
 	{
 		Value = MoveTemp(NewValue);
 	}
