@@ -1,10 +1,10 @@
 ﻿#include "Character/DustPlayerCharacter.h"
-#include "AbilitySystemComponent.h"
 #include "DustGameplayTags.h"
 #include "EnhancedInputSubsystems.h"
-#include "Expected.h"
 #include "Input/DustInputComponent.h"
 #include "InputActionValue.h"
+#include "AbilitySystem/DustAbilitySystemComponent.h"
+#include "Animation/DustAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Equipment/DustEquipmentManagerComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -32,52 +32,59 @@ void ADustPlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	
 	InitializeWithAbilitySystem();
+	
+	if (UDustAnimInstance* DustAnimInstance = Cast<UDustAnimInstance>(GetMesh()->GetAnimInstance()))
+	{
+		DustAnimInstance->InitializeWithAbilitySystem(AbilitySystemComponent);
+	}
+	
+	for (TSubclassOf Equipment : StartupEquipments)
+	{
+		EquipmentManagerComponent->Equip(Equipment);
+	}	
 }
 
 void ADustPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	AddInputMappingContext();
-	BindInputActions(PlayerInputComponent);
-}
+	if (const APlayerController* PlayerController = GetController<APlayerController>())
+	{
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = 
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (Subsystem)
+		{
+			Subsystem->AddMappingContext(InputMapping, 0);
+		}
+	}
 
-void ADustPlayerCharacter::AddInputMappingContext() const
-{
-	Expect(GetController<APlayerController>(),IsValid)
-	.AndThen([](const APlayerController* PlayerController){
-		return Expect(PlayerController->GetLocalPlayer());
-	}).AndThen([](const ULocalPlayer* LocalPlayer){
-		return Expect(ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer));
-	}).AndThen([this](UEnhancedInputLocalPlayerSubsystem* Subsystem){
-		Subsystem->AddMappingContext(InputMapping, 1);
-	});
-}
-
-void ADustPlayerCharacter::BindInputActions(UInputComponent* PlayerInputComponent)
-{
-	Expect(Cast<UDustInputComponent>(PlayerInputComponent))
-	.AndThen([this](UDustInputComponent* DustInputComponent){
-		// Move
-		DustInputComponent->BindNativeAction(
-			InputConfig,
-			DustGameplayTags::Input_Action_Move,
-			ETriggerEvent::Triggered,
-			this,
-			&ThisClass::Input_Move,
-			false
-		);
-
-		// Look
-		DustInputComponent->BindNativeAction(
-			InputConfig,
-			DustGameplayTags::Input_Action_Look,
-			ETriggerEvent::Triggered,
-			this,
-			&ThisClass::Input_Look,
-			false
-		);
-	});
+	UDustInputComponent* DustInputComponent = Cast<UDustInputComponent>(PlayerInputComponent);
+	check(DustInputComponent);
+	
+	// Bind native input actions
+	// Move
+	DustInputComponent->BindNativeAction(
+		InputConfig,
+		DustGameplayTags::Input_Action_Move,
+		ETriggerEvent::Triggered,
+		this,
+		&ThisClass::Input_Move,
+		false
+	);
+	// Look
+	DustInputComponent->BindNativeAction(
+		InputConfig,
+		DustGameplayTags::Input_Action_Look,
+		ETriggerEvent::Triggered,
+		this,
+		&ThisClass::Input_Look,
+		false
+	);
+	
+	// Bind ability input actions
+	TArray<uint32> AbilityInputBindHandles;
+	DustInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed,
+		&ThisClass::AbilityInputTagReleased, AbilityInputBindHandles);
 }
 
 void ADustPlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)
@@ -117,6 +124,22 @@ void ADustPlayerCharacter::Input_Look(const FInputActionValue& InputActionValue)
 	}
 }
 
+void ADustPlayerCharacter::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->AbilityInputTagPressed(InputTag);
+	}
+}
+
+void ADustPlayerCharacter::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->AbilityInputTagReleased(InputTag);
+	}
+}
+
 void ADustPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
@@ -128,7 +151,7 @@ void ADustPlayerCharacter::InitializeWithAbilitySystem()
 {
 	if (ADustPlayerState* DustPlayerState = GetPlayerState<ADustPlayerState>())
 	{
-		AbilitySystemComponent = DustPlayerState->GetAbilitySystemComponent();
+		AbilitySystemComponent = DustPlayerState->GetDustAbilitySystemComponent();
 		AbilitySystemComponent->InitAbilityActorInfo(DustPlayerState, this);
 	}
 }

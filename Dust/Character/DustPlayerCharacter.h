@@ -2,10 +2,12 @@
 
 #include "DustCharacter.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "DustPlayerCharacter.generated.h"
 
+class UDustEquipmentDefinition;
 class UDustEquipmentManagerComponent;
-class UAbilitySystemComponent;
+class UDustAbilitySystemComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class UDustInputComponent;
@@ -29,13 +31,14 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
 private:
-	void AddInputMappingContext() const;
-	void BindInputActions(UInputComponent* PlayerInputComponent);
+	void InitializeWithAbilitySystem();
 	
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_Look(const FInputActionValue& InputActionValue);
 	
-	void InitializeWithAbilitySystem();
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category="Camera")
@@ -51,8 +54,11 @@ protected:
 	TObjectPtr<UDustInputConfig> InputConfig;
 	
 	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UDustAbilitySystemComponent> AbilitySystemComponent;
 	
 	UPROPERTY(VisibleAnywhere, Category="Equipment")
 	TObjectPtr<UDustEquipmentManagerComponent> EquipmentManagerComponent;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Equipment")
+	TArray<TSubclassOf<UDustEquipmentDefinition>> StartupEquipments;
 };

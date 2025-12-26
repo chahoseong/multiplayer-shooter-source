@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/PlayerController.h"
 #include "DustPlayerController.generated.h"
 
-class UDustEquipmentDefinition;
+class UDustAbilitySystemComponent;
 
 UCLASS()
 class DUST_API ADustPlayerController : public APlayerController
@@ -16,7 +16,9 @@ public:
 	
 	virtual void OnPossess(APawn* InPawn) override;
 	
+	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
+	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category="Equipment")
-	TArray<TSubclassOf<UDustEquipmentDefinition>> StartupEquipments;
+	UFUNCTION(BlueprintPure, Category="Dust|Player Controller")
+	UDustAbilitySystemComponent* GetDustAbilitySystemComponent() const;
 };

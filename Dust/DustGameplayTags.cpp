@@ -2,9 +2,12 @@
 
 namespace DustGameplayTags
 {
+	UE_DEFINE_GAMEPLAY_TAG(Gameplay_AbilityInputBlocked, "Gameplay.AbilityInputBlocked")
+	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Move, "Input.Action.Move")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Look, "Input.Action.Look")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Jump, "Input.Action.Jump")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Aim, "Input.Action.Aim")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Status_Aiming, "Status.Aiming")
 	

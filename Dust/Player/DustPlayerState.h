@@ -15,6 +15,9 @@ public:
 	ADustPlayerState(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
+	UFUNCTION(BlueprintPure, Category="Dust|Player State")
+	UDustAbilitySystemComponent* GetDustAbilitySystemComponent() const;
 
 protected:
 	UPROPERTY()

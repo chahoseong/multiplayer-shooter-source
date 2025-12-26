@@ -1,5 +1,4 @@
 ﻿#include "Player/DustPlayerState.h"
-
 #include "AbilitySystem/DustAbilitySystemComponent.h"
 
 ADustPlayerState::ADustPlayerState(const FObjectInitializer& ObjectInitializer)
@@ -9,6 +8,11 @@ ADustPlayerState::ADustPlayerState(const FObjectInitializer& ObjectInitializer)
 }
 
 UAbilitySystemComponent* ADustPlayerState::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+UDustAbilitySystemComponent* ADustPlayerState::GetDustAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
