@@ -6,6 +6,8 @@
 #include "AbilitySystem/DustAbilitySystemComponent.h"
 #include "Animation/DustAnimInstance.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/DustCameraMode.h"
+#include "Camera/DustCameraStateComponent.h"
 #include "Equipment/DustEquipmentManagerComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/DustPlayerState.h"
@@ -24,6 +26,8 @@ ADustPlayerCharacter::ADustPlayerCharacter(const FObjectInitializer& ObjectIniti
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	
+	CameraStateComponent = CreateDefaultSubobject<UDustCameraStateComponent>(TEXT("CameraState"));
+	
 	EquipmentManagerComponent = CreateDefaultSubobject<UDustEquipmentManagerComponent>(TEXT("EquipmentManager"));
 }
 
@@ -31,17 +35,28 @@ void ADustPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
+	// Camera
+	InitializeCameraState();
+	
+	// Ability
 	InitializeWithAbilitySystem();
 	
+	// Animation
 	if (UDustAnimInstance* DustAnimInstance = Cast<UDustAnimInstance>(GetMesh()->GetAnimInstance()))
 	{
 		DustAnimInstance->InitializeWithAbilitySystem(AbilitySystemComponent);
 	}
 	
+	// Equipment
 	for (TSubclassOf Equipment : StartupEquipments)
 	{
 		EquipmentManagerComponent->Equip(Equipment);
 	}	
+}
+
+TSubclassOf<UDustCameraMode> ADustPlayerCharacter::DetermineCameraMode() const
+{
+	return CurrentCameraMode ? CurrentCameraMode : DefaultCameraMode;
 }
 
 void ADustPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -140,10 +155,29 @@ void ADustPlayerCharacter::AbilityInputTagReleased(FGameplayTag InputTag)
 	}
 }
 
+void ADustPlayerCharacter::SetCameraMode(TSubclassOf<UDustCameraMode> CameraMode, UObject* SourceObject)
+{
+	if (CameraMode)
+	{
+		CurrentCameraMode = CameraMode;
+		CameraModeSource = SourceObject;
+	}
+}
+
+void ADustPlayerCharacter::ClearCameraMode(UObject* SourceObject)
+{
+	if (CameraModeSource.IsValid() && CameraModeSource == SourceObject)
+	{
+		CurrentCameraMode = nullptr;
+		CameraModeSource = nullptr;
+	}
+}
+
 void ADustPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	
+	InitializeCameraState();
 	InitializeWithAbilitySystem();
 }
 
@@ -153,6 +187,22 @@ void ADustPlayerCharacter::InitializeWithAbilitySystem()
 	{
 		AbilitySystemComponent = DustPlayerState->GetDustAbilitySystemComponent();
 		AbilitySystemComponent->InitAbilityActorInfo(DustPlayerState, this);
+	}
+}
+
+void ADustPlayerCharacter::InitializeCameraState()
+{
+	if (IsLocallyControlled())
+	{
+		CameraStateComponent->DetermineCameraModeDelegate.BindUObject(
+			this,
+			&ThisClass::DetermineCameraMode
+		);
+		CameraStateComponent->Activate(true);
+	}
+	else
+	{
+		CameraStateComponent->Deactivate();
 	}
 }
 

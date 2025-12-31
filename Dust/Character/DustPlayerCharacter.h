@@ -5,6 +5,8 @@
 #include "GameplayTagContainer.h"
 #include "DustPlayerCharacter.generated.h"
 
+class UDustCameraMode;
+class UDustCameraStateComponent;
 class UDustEquipmentDefinition;
 class UDustEquipmentManagerComponent;
 class UDustAbilitySystemComponent;
@@ -25,20 +27,25 @@ public:
 	
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	
-	virtual void OnRep_PlayerState() override;
+
+	void SetCameraMode(TSubclassOf<UDustCameraMode> CameraMode, UObject* SourceObject);
+	void ClearCameraMode(UObject* SourceObject);
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
+	virtual void OnRep_PlayerState() override;
+
 private:
 	void InitializeWithAbilitySystem();
+	void InitializeCameraState();
 	
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_Look(const FInputActionValue& InputActionValue);
 	
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
-
+	
+	TSubclassOf<UDustCameraMode> DetermineCameraMode() const;
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category="Camera")
@@ -46,6 +53,12 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, Category="Camera")
 	TObjectPtr<UCameraComponent> CameraComponent;
+	
+	UPROPERTY(VisibleAnywhere, Category="Camera")
+	TObjectPtr<UDustCameraStateComponent> CameraStateComponent;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Camera")
+	TSubclassOf<UDustCameraMode> DefaultCameraMode;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputMappingContext> InputMapping;
@@ -61,4 +74,8 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="Equipment")
 	TArray<TSubclassOf<UDustEquipmentDefinition>> StartupEquipments;
+	
+private:
+	TSubclassOf<UDustCameraMode>  CurrentCameraMode;
+	TWeakObjectPtr<UObject> CameraModeSource;
 };

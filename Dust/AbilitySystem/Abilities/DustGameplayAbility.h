@@ -4,6 +4,8 @@
 #include "Abilities/GameplayAbility.h"
 #include "DustGameplayAbility.generated.h"
 
+class UDustCameraMode;
+
 UENUM(BlueprintType)
 enum class EDustAbilityActivationPolicy : uint8
 {
@@ -20,6 +22,12 @@ class DUST_API UDustGameplayAbility : public UGameplayAbility
 	
 public:
 	UDustGameplayAbility(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	
+	UFUNCTION(BlueprintCallable, Category="Dust|Ability")
+	void SetCameraMode(TSubclassOf<UDustCameraMode> CameraMode);
+	
+	UFUNCTION(BlueprintCallable, Category="Dust|Ability")
+	void ClearCameraMode();
 	
 	EDustAbilityActivationPolicy GetActivationPolicy() const;
 	
@@ -38,4 +46,7 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Dust|Activation")
 	EDustAbilityActivationPolicy ActivationPolicy;
+	
+private:
+	TSubclassOf<UDustCameraMode> ActiveCameraMode;
 };

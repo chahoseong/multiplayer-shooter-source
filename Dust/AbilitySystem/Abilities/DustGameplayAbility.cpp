@@ -1,4 +1,6 @@
 ﻿#include "AbilitySystem/Abilities/DustGameplayAbility.h"
+#include "Camera/DustCameraMode.h"
+#include "Character/DustPlayerCharacter.h"
 #include "GameFramework/Character.h"
 
 UDustGameplayAbility::UDustGameplayAbility(const FObjectInitializer& ObjectInitializer)
@@ -10,6 +12,27 @@ UDustGameplayAbility::UDustGameplayAbility(const FObjectInitializer& ObjectIniti
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
 	
 	ActivationPolicy = EDustAbilityActivationPolicy::OnInputTriggered;
+}
+
+void UDustGameplayAbility::SetCameraMode(TSubclassOf<UDustCameraMode> CameraMode)
+{
+	if (ADustPlayerCharacter* PlayerCharacter = Cast<ADustPlayerCharacter>(GetAvatarActorFromActorInfo()))
+	{
+		PlayerCharacter->SetCameraMode(CameraMode, this);
+		ActiveCameraMode = CameraMode;
+	}
+}
+
+void UDustGameplayAbility::ClearCameraMode()
+{
+	if (ActiveCameraMode)
+	{
+		if (ADustPlayerCharacter* PlayerCharacter = Cast<ADustPlayerCharacter>(GetAvatarActorFromActorInfo()))
+		{
+			PlayerCharacter->ClearCameraMode(this);
+		}
+		ActiveCameraMode = nullptr;
+	}
 }
 
 EDustAbilityActivationPolicy UDustGameplayAbility::GetActivationPolicy() const
