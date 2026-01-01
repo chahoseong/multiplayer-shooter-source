@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "GameplayTagContainer.h"
 #include "GameFramework/PlayerController.h"
 #include "DustPlayerController.generated.h"
 
@@ -15,6 +14,7 @@ public:
 	ADustPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void BeginPlay() override;
 	
 	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
 	

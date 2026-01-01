@@ -1,7 +1,7 @@
 ﻿#include "Player/DustPlayerController.h"
-
-#include "DustPlayerState.h"
+#include "Player/DustPlayerState.h"
 #include "AbilitySystem/DustAbilitySystemComponent.h"
+#include "UI/DustHUD.h"
 
 ADustPlayerController::ADustPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -11,6 +11,19 @@ ADustPlayerController::ADustPlayerController(const FObjectInitializer& ObjectIni
 void ADustPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+}
+
+void ADustPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (IsLocalController())
+	{
+		if (ADustHUD* DustHUD = GetHUD<ADustHUD>())
+		{
+			DustHUD->InitializeOverlay();
+		}
+	}
 }
 
 void ADustPlayerController::PostProcessInput(const float DeltaTime, const bool bGamePaused)

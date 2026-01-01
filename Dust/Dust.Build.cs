@@ -25,6 +25,7 @@ public class Dust : ModuleRules
 		PrivateDependencyModuleNames.AddRange([
 			"InputCore",
 			"EnhancedInput",
+			"UMG",
 			"NetCore",
 			"GameplayMessageRuntime"
 		]);
