@@ -10,13 +10,6 @@ UDustAnimInstance::UDustAnimInstance(const FObjectInitializer& ObjectInitializer
 void UDustAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
-	
-	UAbilitySystemComponent* AbilitySystem = 
-		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwningActor());
-	if (AbilitySystem)
-	{
-		InitializeWithAbilitySystem(AbilitySystem);
-	}
 }
 
 void UDustAnimInstance::InitializeWithAbilitySystem(UAbilitySystemComponent* AbilitySystem)
@@ -29,12 +22,6 @@ void UDustAnimInstance::InitializeWithAbilitySystem(UAbilitySystemComponent* Abi
 void UDustAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
-	
-	// Expect(Cast<ACharacter>(GetOwningActor()), IsValid, TEXT(""))
-	// .AndThen([](const ACharacter* Character)
-	// {
-	// 	
-	// });
 }
 
 #if WITH_EDITOR
