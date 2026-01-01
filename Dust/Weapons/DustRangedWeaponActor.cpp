@@ -11,6 +11,8 @@ ADustRangedWeaponActor::ADustRangedWeaponActor(const FObjectInitializer& ObjectI
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 	
+	SetReplicates(true);
+	
 	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetRootComponent(MeshComponent);

@@ -4,6 +4,7 @@
 #include "AbilitySystemInterface.h"
 #include "DustPlayerState.generated.h"
 
+class UDustHealthSet;
 class UDustAbilitySystemComponent;
 
 UCLASS()
@@ -19,7 +20,12 @@ public:
 	UFUNCTION(BlueprintPure, Category="Dust|Player State")
 	UDustAbilitySystemComponent* GetDustAbilitySystemComponent() const;
 
+	UDustHealthSet* GetHealthSet() const;
+	
 protected:
 	UPROPERTY()
 	TObjectPtr<UDustAbilitySystemComponent> AbilitySystemComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UDustHealthSet> HealthSet;
 };

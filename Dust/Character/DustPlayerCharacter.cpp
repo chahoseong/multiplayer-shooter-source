@@ -35,23 +35,7 @@ void ADustPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
-	// Camera
-	InitializeCameraState();
-	
-	// Ability
-	InitializeWithAbilitySystem();
-	
-	// Animation
-	if (UDustAnimInstance* DustAnimInstance = Cast<UDustAnimInstance>(GetMesh()->GetAnimInstance()))
-	{
-		DustAnimInstance->InitializeWithAbilitySystem(AbilitySystemComponent);
-	}
-	
-	// Equipment
-	for (TSubclassOf Equipment : StartupEquipments)
-	{
-		EquipmentManagerComponent->Equip(Equipment);
-	}	
+	InitializeCharacter();
 }
 
 TSubclassOf<UDustCameraMode> ADustPlayerCharacter::DetermineCameraMode() const
@@ -177,8 +161,31 @@ void ADustPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	
+	InitializeCharacter();
+}
+
+void ADustPlayerCharacter::InitializeCharacter()
+{
+	// Camera
 	InitializeCameraState();
+	
+	// Ability
 	InitializeWithAbilitySystem();
+	
+	// Animation
+	if (UDustAnimInstance* DustAnimInstance = Cast<UDustAnimInstance>(GetMesh()->GetAnimInstance()))
+	{
+		DustAnimInstance->InitializeWithAbilitySystem(AbilitySystemComponent);
+	}
+	
+	if (HasAuthority())
+	{
+		// Equipment
+		for (TSubclassOf Equipment : StartupEquipments)
+		{
+			EquipmentManagerComponent->Equip(Equipment);
+		}
+	}
 }
 
 void ADustPlayerCharacter::InitializeWithAbilitySystem()
@@ -187,6 +194,8 @@ void ADustPlayerCharacter::InitializeWithAbilitySystem()
 	{
 		AbilitySystemComponent = DustPlayerState->GetDustAbilitySystemComponent();
 		AbilitySystemComponent->InitAbilityActorInfo(DustPlayerState, this);
+		
+		HealthSet = DustPlayerState->GetHealthSet();
 	}
 }
 

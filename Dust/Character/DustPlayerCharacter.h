@@ -5,6 +5,7 @@
 #include "GameplayTagContainer.h"
 #include "DustPlayerCharacter.generated.h"
 
+class UDustHealthSet;
 class UDustCameraMode;
 class UDustCameraStateComponent;
 class UDustEquipmentDefinition;
@@ -36,6 +37,7 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 private:
+	void InitializeCharacter();
 	void InitializeWithAbilitySystem();
 	void InitializeCameraState();
 	
@@ -68,6 +70,9 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UDustAbilitySystemComponent> AbilitySystemComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UDustHealthSet> HealthSet;
 	
 	UPROPERTY(VisibleAnywhere, Category="Equipment")
 	TObjectPtr<UDustEquipmentManagerComponent> EquipmentManagerComponent;
