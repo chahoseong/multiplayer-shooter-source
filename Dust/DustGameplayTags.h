@@ -14,4 +14,6 @@ namespace DustGameplayTags
 	DUST_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Aiming)
 	
 	DUST_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Walking)
+	
+	DUST_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Combat_Damage)
 }

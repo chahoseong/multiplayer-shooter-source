@@ -12,4 +12,6 @@ namespace DustGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Status_Aiming, "Status.Aiming")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Movement_Mode_Walking, "Movement.Mode.Walking")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Message_Combat_Damage, "Message.Combat.Damage")
 }
