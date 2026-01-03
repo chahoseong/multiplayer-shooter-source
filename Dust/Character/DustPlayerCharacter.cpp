@@ -1,5 +1,6 @@
 ﻿#include "Character/DustPlayerCharacter.h"
 #include "DustGameplayTags.h"
+#include "DustHealthComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Input/DustInputComponent.h"
 #include "InputActionValue.h"
@@ -27,7 +28,7 @@ ADustPlayerCharacter::ADustPlayerCharacter(const FObjectInitializer& ObjectIniti
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	
 	CameraStateComponent = CreateDefaultSubobject<UDustCameraStateComponent>(TEXT("CameraState"));
-	
+	HealthComponent = CreateDefaultSubobject<UDustHealthComponent>(TEXT("Health"));
 	EquipmentManagerComponent = CreateDefaultSubobject<UDustEquipmentManagerComponent>(TEXT("EquipmentManager"));
 }
 
@@ -172,6 +173,9 @@ void ADustPlayerCharacter::InitializeCharacter()
 	// Ability
 	InitializeWithAbilitySystem();
 	
+	// Health
+	HealthComponent->InitializeWithAbilitySystem(AbilitySystemComponent);
+	
 	// Animation
 	if (UDustAnimInstance* DustAnimInstance = Cast<UDustAnimInstance>(GetMesh()->GetAnimInstance()))
 	{
@@ -180,6 +184,13 @@ void ADustPlayerCharacter::InitializeCharacter()
 	
 	if (HasAuthority())
 	{
+		// Attributes
+		FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+		EffectContext.AddSourceObject(this);
+		const FGameplayEffectSpecHandle EffectSpec = 
+			AbilitySystemComponent->MakeOutgoingSpec(InitialAttributes, 1.0f, EffectContext);
+		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data);
+		
 		// Equipment
 		for (TSubclassOf Equipment : StartupEquipments)
 		{

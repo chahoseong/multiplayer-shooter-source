@@ -12,16 +12,4 @@ class DUST_API UDustUserWidget : public UUserWidget
 	
 public:
 	UDustUserWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
-	UFUNCTION(BlueprintCallable, Category="Dust|UI")
-	void SetController(UObject* NewController);
-	
-	UFUNCTION(BlueprintPure, Category="Dust|UI")
-	UObject* GetController() const;
-	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void OnControllerChanged(UObject* NewController);
-	
-protected:
-	TWeakObjectPtr<UObject> Controller;
 };

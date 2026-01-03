@@ -27,7 +27,7 @@ struct FDustVerbMessage
 	FGameplayTagContainer ContextTags;
 	
 	UPROPERTY(BlueprintReadWrite, Category="Gameplay")
-	float Magnitude;
+	float Magnitude = 0.0f;
 	
 	DUST_API FString ToString() const;
 };

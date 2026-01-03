@@ -5,6 +5,8 @@
 #include "GameplayTagContainer.h"
 #include "DustPlayerCharacter.generated.h"
 
+class UGameplayEffect;
+class UDustHealthComponent;
 class UDustHealthSet;
 class UDustCameraMode;
 class UDustCameraStateComponent;
@@ -73,6 +75,12 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UDustHealthSet> HealthSet;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Attributes")
+	TSubclassOf<UGameplayEffect> InitialAttributes;
+	
+	UPROPERTY()
+	TObjectPtr<UDustHealthComponent> HealthComponent;
 	
 	UPROPERTY(VisibleAnywhere, Category="Equipment")
 	TObjectPtr<UDustEquipmentManagerComponent> EquipmentManagerComponent;

@@ -10,8 +10,13 @@ namespace DustGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Aim, "Input.Action.Aim")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Status_Aiming, "Status.Aiming")
+	UE_DEFINE_GAMEPLAY_TAG(Status_Death_Dying, "Status.Death.Dying")
+	UE_DEFINE_GAMEPLAY_TAG(Status_Death_Dead, "Status.Death.Dead")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Movement_Mode_Walking, "Movement.Mode.Walking")
 	
-	UE_DEFINE_GAMEPLAY_TAG(Message_Combat_Damage, "Message.Combat.Damage")
+	UE_DEFINE_GAMEPLAY_TAG(Dust_Damage_Message, "Dust.Damage.Message")
+	UE_DEFINE_GAMEPLAY_TAG(Dust_Elimination_Message, "Dust.Elimination.Message")
+	
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Death, "GameplayEvent.Death")
 }

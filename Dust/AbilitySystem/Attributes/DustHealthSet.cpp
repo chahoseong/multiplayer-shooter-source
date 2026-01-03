@@ -69,7 +69,7 @@ void UDustHealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackD
 		if (IncomingDamage > 0.0f)
 		{
 			FDustVerbMessage Message;
-			Message.Verb = DustGameplayTags::Message_Combat_Damage;
+			Message.Verb = DustGameplayTags::Dust_Damage_Message;
 			Message.Instigator = Causer;
 			Message.InstigatorTags = *Data.EffectSpec.CapturedSourceTags.GetAggregatedTags();
 			Message.Target = GetOwningActor();
